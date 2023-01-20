@@ -1,6 +1,6 @@
 package itmo.java.advanced_124_31.service.impl;
 
-import itmo.java.advanced_124_31.dao.Car;
+import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.data.Carbase;
 import itmo.java.advanced_124_31.data.impl.CarBaseImpl;
 import itmo.java.advanced_124_31.service.CarService;

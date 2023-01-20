@@ -1,6 +1,6 @@
 package itmo.java.advanced_124_31.service;
 
-import itmo.java.advanced_124_31.dao.Car;
+import itmo.java.advanced_124_31.model.entity.Car;
 import java.util.List;
 
 public interface CarService {

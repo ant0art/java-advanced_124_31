@@ -1,10 +1,10 @@
-package itmo.java.advanced_124_31.data;
+package itmo.java.advanced_124_31.model.repository;
 
 import itmo.java.advanced_124_31.model.entity.Driver;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface DriverBase {
-
+public interface DriverRepository extends JpaRepository {
 	Driver find(Long id);
 
 	void save(Driver driver);
@@ -13,4 +13,3 @@ public interface DriverBase {
 
 	List<Driver> getDrivers();
 }
-

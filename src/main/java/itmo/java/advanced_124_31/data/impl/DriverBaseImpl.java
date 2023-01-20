@@ -1,15 +1,14 @@
 package itmo.java.advanced_124_31.data.impl;
 
-import itmo.java.advanced_124_31.dao.Driver;
 import itmo.java.advanced_124_31.data.Carbase;
 import itmo.java.advanced_124_31.data.DriverBase;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import itmo.java.advanced_124_31.model.entity.Driver;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -30,6 +29,8 @@ public class DriverBaseImpl implements DriverBase, Serializable {
 					getDrivers().stream().filter(e -> e.getId().equals(id)).findFirst()
 							.orElse(null);
 		} catch (NullPointerException e) {
+			log.error("Error NullPointerException");
+			//e.printStackTrace();
 		}
 		return driver;
 	}
@@ -45,7 +46,7 @@ public class DriverBaseImpl implements DriverBase, Serializable {
 					driver.getId()));
 			driver.setId(id++);
 		}
-		Arrays.stream(driver.getCars()).forEach(e -> carBase.save(e));
+		driver.getCars().forEach(e -> carBase.save(e));
 		this.drivers.add(driver);
 	}
 

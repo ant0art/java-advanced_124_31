@@ -1,6 +1,6 @@
 package itmo.java.advanced_124_31.service.impl;
 
-import itmo.java.advanced_124_31.dao.Driver;
+import itmo.java.advanced_124_31.model.entity.Driver;
 import itmo.java.advanced_124_31.data.DriverBase;
 import itmo.java.advanced_124_31.data.impl.DriverBaseImpl;
 import itmo.java.advanced_124_31.service.DriverService;

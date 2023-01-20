@@ -1,10 +1,10 @@
 package itmo.java.advanced_124_31.service;
 
 public enum Color {
-	GREEN("GREEN"),
-	BLUE("BLUE"),
-	BLACK("BLACK"),
-	RED("RED");
+	GREEN("зелёный"),
+	BLUE("синий"),
+	BLACK("чёрный"),
+	RED("красный");
 
 	private String name;
 

@@ -1,6 +1,6 @@
 package itmo.java.advanced_124_31.service;
 
-import itmo.java.advanced_124_31.dao.Driver;
+import itmo.java.advanced_124_31.model.entity.Driver;
 import java.util.List;
 
 public interface DriverService {
