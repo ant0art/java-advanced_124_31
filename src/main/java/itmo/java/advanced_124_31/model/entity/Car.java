@@ -1,23 +1,11 @@
 package itmo.java.advanced_124_31.model.entity;
 
-import itmo.java.advanced_124_31.data.Carbase;
-import itmo.java.advanced_124_31.data.impl.CarBaseImpl;
 import itmo.java.advanced_124_31.service.Color;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -34,7 +22,6 @@ public class Car implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	//@Column(name = "id", nullable = false)
 	Long id;
 
 	@Column
@@ -44,13 +31,20 @@ public class Car implements Serializable {
 	@Column
 	@Enumerated(EnumType.STRING)
 	Color color;
+	@Column(name = "vehicle_year")
+	Integer vehicleYear;
 
 	@CreationTimestamp
-	@Column(name = "created_at")
+	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT " +
+			"CURRENT_TIMESTAMP", updatable = false)
 	LocalDateTime createdAt;
 
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
+
+	@ManyToOne
+	@JoinColumn(name = "driver_id")
+	Driver driver;
 }
 
 

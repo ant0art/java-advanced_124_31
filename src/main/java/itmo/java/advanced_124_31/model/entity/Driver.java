@@ -1,31 +1,22 @@
 package itmo.java.advanced_124_31.model.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "drivers")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
+@ToString
 public class Driver implements Serializable {
 
 	static final long SerialVersionUID = 1;
@@ -39,15 +30,19 @@ public class Driver implements Serializable {
 
 	@Column
 	String surname;
+	@Column
+	LocalDate birthday;
 
 	@CreationTimestamp
-	@Column(name = "created_at")
+	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT " +
+			"CURRENT_TIMESTAMP", updatable = false)
 	LocalDateTime createdAt;
 
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
 	@OneToMany(cascade = CascadeType.ALL)
+	@ToString.Exclude
 	List<Car> cars;
 
 }

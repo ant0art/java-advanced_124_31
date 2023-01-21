@@ -1,21 +1,19 @@
 package itmo.java.advanced_124_31.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum Color {
 	GREEN("зелёный"),
 	BLUE("синий"),
 	BLACK("чёрный"),
-	RED("красный");
+	WHITE("белый"),
+	RED("красный"),
+	GRAY("серый"),
+	YELLOW("желтый");
 
-	private String name;
+	private final String name;
 
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name String name of Color
-	 */
-	Color(String name) {
-		this.name = name;
-	}
 }

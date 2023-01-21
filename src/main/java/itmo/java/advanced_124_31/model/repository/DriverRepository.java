@@ -1,15 +1,14 @@
 package itmo.java.advanced_124_31.model.repository;
 
 import itmo.java.advanced_124_31.model.entity.Driver;
+import java.util.Optional;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.springframework.stereotype.Repository;
 
-public interface DriverRepository extends JpaRepository {
-	Driver find(Long id);
+@Repository
+public interface DriverRepository extends JpaRepository<Driver, Long> {
 
-	void save(Driver driver);
-
-	void delete(Long id);
-
-	List<Driver> getDrivers();
+	@NonNull
+	Optional <Driver> findById(@NonNull Long id);
 }

@@ -1,64 +1,151 @@
 package itmo.java.advanced_124_31.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import itmo.java.advanced_124_31.model.dto.CarDTO;
+import itmo.java.advanced_124_31.model.dto.DriverDTO;
+import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.model.entity.Driver;
-import itmo.java.advanced_124_31.data.DriverBase;
-import itmo.java.advanced_124_31.data.impl.DriverBaseImpl;
+import itmo.java.advanced_124_31.model.repository.DriverRepository;
 import itmo.java.advanced_124_31.service.DriverService;
-import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
-	private DriverBase driverBase = new DriverBaseImpl();
+	private final DriverRepository driverRepository;
+
+	private final ObjectMapper mapper;
 
 	/**
-	 * Create new driver and save it to driver database
+	 * Set a new driver to database
 	 *
-	 * @param driver new Driver for database to add
-	 * @return Driver
+	 * @param driverDTO new driver to add
+	 * @return a class object driverDTO if everything is well
 	 */
 	@Override
-	public Driver create(Driver driver) {
-		this.driverBase.save(driver);
-		return driver;
+	public DriverDTO create(DriverDTO driverDTO) {
+
+		//driverDTO --> driver
+		Driver driver = mapper.convertValue(driverDTO, Driver.class);
+		driver.setBirthday(LocalDate.parse(driverDTO.getBirthday()));
+		driver.setCreatedAt(LocalDateTime.now());
+
+		List<Car> cars = driverDTO.getCars().stream().map(c -> {
+			Car car = new Car();
+			car.setName(c.getName());
+			car.setWheels(c.getWheels());
+			car.setColor(c.getColor());
+			car.setVehicleYear(c.getVehicleYear());
+			car.setCreatedAt(LocalDateTime.now());
+			return car;
+		}).collect(Collectors.toList());
+
+		driver.setCars(cars);
+		Driver savedDriver = driverRepository.save(driver);
+
+		//driver --> driverDTO
+
+		return read(savedDriver.getId());
 	}
 
 	/**
-	 * Find a Driver by it`s ID
+	 * Read the entity-Driver id and returns it DTO
 	 *
-	 * @param id id of Driver
-	 * @return Driver
+	 * @param id ID of driver in database
+	 * @return a class object driverDTO
 	 */
 	@Override
-	public Driver read(Long id) {
-		return this.driverBase.find(id);
+	public DriverDTO read(Long id) {
+		Driver driver = driverRepository.findById(id).get();
+		DriverDTO res = mapper.convertValue(driver, DriverDTO.class);
+		res.setBirthday(String.valueOf(driver.getBirthday()));
+
+		List<CarDTO> carsDTO = driver.getCars().stream().map(car -> {
+			CarDTO carDTO = new CarDTO();
+			carDTO.setColor(car.getColor());
+			carDTO.setName(car.getName());
+			carDTO.setWheels(car.getWheels());
+			carDTO.setVehicleYear(car.getVehicleYear());
+			return carDTO;
+		}).collect(Collectors.toList());
+
+		res.setCars(carsDTO);
+		return res;
 	}
 
 	/**
-	 * Update driver in driver database. It rewrites fields of current object Driver or
-	 * add new object Driver if it isn't contained earlier
+	 * Update fields of object by DTO
 	 *
-	 * @param driver object to update or add to database
-	 * @return Driver
+	 * @param id        ID of object to be updated
+	 * @param driverDTO DTO object with definite fields to update
+	 * @return DTO object as everything went right
 	 */
 	@Override
-	public Driver update(Driver driver) {
-		this.driverBase.save(driver);
-		return driver;
+	public DriverDTO update(Long id, DriverDTO driverDTO) {
+
+		Driver updatedDriver = null;
+		Optional<Driver> optDriver = driverRepository.findById(id);
+		if (optDriver.isEmpty()) {
+			System.out.println("Nothing to update");
+			log.info("Nothing to update");
+		} else {
+			Driver driver = optDriver.get();
+			if(driverDTO.getSurname() != null) {
+				driver.setSurname(driverDTO.getSurname());
+			}
+			if (driverDTO.getName() != null) {
+				driver.setName(driverDTO.getName());
+			}
+			if(driverDTO.getBirthday() != null) {
+				driver.setBirthday(LocalDate.parse(driverDTO.getBirthday()));
+			}
+			driver.setId(id);
+			driver.setUpdatedAt(LocalDateTime.now());
+			log.info(String.format("Driver info: %s",driver.toString()));
+
+			updatedDriver = driverRepository.save(driver);
+			log.info(String.format("Driver with id: %d is updated", id));
+			log.info(String.format("Driver info: %s",updatedDriver.toString()));
+
+			return read(updatedDriver.getId());
+		}
+		return driverDTO;
 	}
 
 	/**
-	 * Delete object from driver database by its ID
+	 * Delete object by ID from DB
 	 *
-	 * @param id id of object to delete
+	 * @param id ID of object to delete
 	 */
 	@Override
 	public void delete(Long id) {
-		this.driverBase.delete(id);
+		Optional<Driver> optDriver = driverRepository.findById(id);
+		if (optDriver.isEmpty()) {
+			System.out.println("Nothing to delete");
+			log.info("Nothing to delete");
+		} else {
+			driverRepository.delete(optDriver.get());
+			log.info(String.format("Driver with id: %d is deleted", id));
+		}
 	}
 
+	/**
+	 * Get the List of all drivers, included in DB
+	 *
+	 * @return List of DriversDTO
+	 */
 	@Override
-	public List<Driver> getDrivers() {
-		return this.driverBase.getDrivers();
+	public List<DriverDTO> getDrivers() {
+		List<DriverDTO> driversDTO = driverRepository.findAll().stream()
+				.map(e -> read(e.getId())).collect(Collectors.toList());
+		return driversDTO;
 	}
 }

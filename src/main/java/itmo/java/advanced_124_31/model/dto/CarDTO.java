@@ -11,4 +11,5 @@ public class CarDTO {
 	String name;
 	Integer wheels;
 	Color color;
+	Integer vehicleYear;
 }

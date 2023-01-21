@@ -1,16 +1,19 @@
 package itmo.java.advanced_124_31.service;
 
-import itmo.java.advanced_124_31.model.entity.Car;
+import itmo.java.advanced_124_31.model.dto.CarDTO;
 import java.util.List;
 
 public interface CarService {
-	Car create(Car car);
 
-	Car read(Long id);
+	CarDTO create(CarDTO carDTO);
 
-	Car update(Car car);
+	CarDTO read(Long id);
+
+	CarDTO update(Long id, CarDTO carDTO);
 
 	void delete(Long id);
 
-	List<Car> getCars();
+	List<CarDTO> getCars();
+
+	void addTo(Long idCar, Long idDriver);
 }

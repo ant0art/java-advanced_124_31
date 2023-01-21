@@ -1,16 +1,17 @@
 package itmo.java.advanced_124_31.service;
 
-import itmo.java.advanced_124_31.model.entity.Driver;
+import itmo.java.advanced_124_31.model.dto.DriverDTO;
 import java.util.List;
 
 public interface DriverService {
-	Driver create(Driver driver);
 
-	Driver read(Long id);
+	DriverDTO create(DriverDTO driverDTO);
 
-	Driver update(Driver driver);
+	DriverDTO read(Long id);
+
+	DriverDTO update(Long id, DriverDTO driverDTO);
 
 	void delete(Long id);
 
-	List<Driver> getDrivers();
+	List<DriverDTO> getDrivers();
 }

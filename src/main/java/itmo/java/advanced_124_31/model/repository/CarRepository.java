@@ -1,15 +1,14 @@
 package itmo.java.advanced_124_31.model.repository;
 
 import itmo.java.advanced_124_31.model.entity.Car;
+import java.util.Optional;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.springframework.stereotype.Repository;
 
-public interface CarRepository extends JpaRepository {
-	Car find(Long id);
+@Repository
+public interface CarRepository extends JpaRepository<Car, Long> {
 
-	void save(Car car);
-
-	void delete(Long id);
-
-	List<Car> getCars();
+	@NonNull
+	Optional<Car> findById(@NonNull Long id);
 }
