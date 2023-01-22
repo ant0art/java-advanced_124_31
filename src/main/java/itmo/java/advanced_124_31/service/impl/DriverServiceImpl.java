@@ -5,10 +5,14 @@ import itmo.java.advanced_124_31.model.dto.CarDTO;
 import itmo.java.advanced_124_31.model.dto.DriverDTO;
 import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.model.entity.Driver;
+import itmo.java.advanced_124_31.model.repository.CarRepository;
 import itmo.java.advanced_124_31.model.repository.DriverRepository;
+import itmo.java.advanced_124_31.service.AdminService;
 import itmo.java.advanced_124_31.service.DriverService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
+	private final CarRepository carRepository;
 	private final DriverRepository driverRepository;
 
 	private final ObjectMapper mapper;
@@ -38,16 +43,7 @@ public class DriverServiceImpl implements DriverService {
 		driver.setBirthday(LocalDate.parse(driverDTO.getBirthday()));
 		driver.setCreatedAt(LocalDateTime.now());
 
-		List<Car> cars = driverDTO.getCars().stream().map(c -> {
-			Car car = new Car();
-			car.setName(c.getName());
-			car.setWheels(c.getWheels());
-			car.setColor(c.getColor());
-			car.setVehicleYear(c.getVehicleYear());
-			car.setCreatedAt(LocalDateTime.now());
-			return car;
-		}).collect(Collectors.toList());
-
+		List<Car> cars = new ArrayList<>();
 		driver.setCars(cars);
 		Driver savedDriver = driverRepository.save(driver);
 
@@ -64,21 +60,32 @@ public class DriverServiceImpl implements DriverService {
 	 */
 	@Override
 	public DriverDTO read(Long id) {
-		Driver driver = driverRepository.findById(id).get();
-		DriverDTO res = mapper.convertValue(driver, DriverDTO.class);
-		res.setBirthday(String.valueOf(driver.getBirthday()));
+		DriverDTO res = new DriverDTO();
+		Optional<Driver> optionalDriver = driverRepository.findById(id);
+		if(optionalDriver.isPresent()){
+			Driver driver = optionalDriver.get();
+			res.setName(driver.getName());
+			res.setSurname(driver.getName());
+			res.setBirthday(String.valueOf(driver.getBirthday()));
 
-		List<CarDTO> carsDTO = driver.getCars().stream().map(car -> {
-			CarDTO carDTO = new CarDTO();
-			carDTO.setColor(car.getColor());
-			carDTO.setName(car.getName());
-			carDTO.setWheels(car.getWheels());
-			carDTO.setVehicleYear(car.getVehicleYear());
-			return carDTO;
-		}).collect(Collectors.toList());
-
-		res.setCars(carsDTO);
-		return res;
+			List<CarDTO> carsDTO = Collections.emptyList();
+			List<Car> cars = driver.getCars();
+			if(!cars.isEmpty()) {
+				carsDTO = cars.stream().map(car -> {
+					CarDTO carDTO = new CarDTO();
+					carDTO.setColor(car.getColor());
+					carDTO.setName(car.getName());
+					carDTO.setWheels(car.getWheels());
+					carDTO.setVehicleYear(car.getVehicleYear());
+					log.info(carDTO.toString());
+					return carDTO;
+				}).collect(Collectors.toList());
+			}
+			res.setCars(carsDTO);
+			return res;
+		}
+		log.warn(String.format("There are no elements with id: %d", id));
+		return null;
 	}
 
 	/**
@@ -94,27 +101,16 @@ public class DriverServiceImpl implements DriverService {
 		Driver updatedDriver = null;
 		Optional<Driver> optDriver = driverRepository.findById(id);
 		if (optDriver.isEmpty()) {
-			System.out.println("Nothing to update");
-			log.info("Nothing to update");
+			log.warn("Nothing to update");
 		} else {
+			Driver tempDriver = mapper.convertValue(driverDTO, Driver.class);
 			Driver driver = optDriver.get();
-			if(driverDTO.getSurname() != null) {
-				driver.setSurname(driverDTO.getSurname());
-			}
-			if (driverDTO.getName() != null) {
-				driver.setName(driverDTO.getName());
-			}
-			if(driverDTO.getBirthday() != null) {
-				driver.setBirthday(LocalDate.parse(driverDTO.getBirthday()));
-			}
 			driver.setId(id);
 			driver.setUpdatedAt(LocalDateTime.now());
-			log.info(String.format("Driver info: %s",driver.toString()));
-
+			AdminServiceImpl adminService = new AdminServiceImpl();
+			adminService.copyPropertiesIgnoreNull(tempDriver,driver);
 			updatedDriver = driverRepository.save(driver);
 			log.info(String.format("Driver with id: %d is updated", id));
-			log.info(String.format("Driver info: %s",updatedDriver.toString()));
-
 			return read(updatedDriver.getId());
 		}
 		return driverDTO;
@@ -129,8 +125,7 @@ public class DriverServiceImpl implements DriverService {
 	public void delete(Long id) {
 		Optional<Driver> optDriver = driverRepository.findById(id);
 		if (optDriver.isEmpty()) {
-			System.out.println("Nothing to delete");
-			log.info("Nothing to delete");
+			log.warn("Nothing to delete");
 		} else {
 			driverRepository.delete(optDriver.get());
 			log.info(String.format("Driver with id: %d is deleted", id));

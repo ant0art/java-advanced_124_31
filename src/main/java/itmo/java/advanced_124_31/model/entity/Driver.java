@@ -41,7 +41,7 @@ public class Driver implements Serializable {
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "driver", cascade = CascadeType.ALL)
 	@ToString.Exclude
 	List<Car> cars;
 

@@ -6,14 +6,16 @@ import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.model.entity.Driver;
 import itmo.java.advanced_124_31.model.repository.CarRepository;
 import itmo.java.advanced_124_31.model.repository.DriverRepository;
+import itmo.java.advanced_124_31.service.AdminService;
 import itmo.java.advanced_124_31.service.CarService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -52,15 +54,20 @@ public class CarServiceImpl implements CarService {
 	 */
 	@Override
 	public CarDTO read(Long id) {
-		CarDTO carDTO = null;
+		Car car;
+		CarDTO res = new CarDTO();
 		Optional<Car> optCar = carRepository.findById(id);
-		if (optCar.isEmpty()) {
-			log.warn(String.format("There are no elements with id: %d", id));
-			return carDTO;
-		} else {
-			Car car = optCar.get();
-			return mapper.convertValue(car, CarDTO.class);
+		if (optCar.isPresent()) {
+			car = optCar.get();
+			res.setName(car.getName());
+			res.setColor(car.getColor());
+			res.setWheels(car.getWheels());
+			res.setVehicleYear(car.getVehicleYear());
+			return res;
 		}
+		log.warn(String.format("There are no elements with id: %d", id));
+		System.out.printf(String.format("There are no elements with id: %d%n", id));
+		return null;
 	}
 
 	/**
@@ -77,21 +84,11 @@ public class CarServiceImpl implements CarService {
 		if (optCar.isEmpty()) {
 			log.warn("Nothing to update");
 		} else {
+			Car tempCar = mapper.convertValue(carDTO, Car.class);
 			Car car = optCar.get();
-			if (carDTO.getColor() != null) {
-				car.setColor(carDTO.getColor());
-			}
-			if (carDTO.getName() != null) {
-				log.info(String.valueOf(carDTO.getName() == null));
-				car.setName(carDTO.getName());
-			}
-			if (carDTO.getWheels() != null) {
-				car.setWheels(carDTO.getWheels());
-			}
-			if (carDTO.getVehicleYear() != null) {
-				car.setVehicleYear(carDTO.getVehicleYear());
-			}
 			car.setId(id);
+			AdminService adminService = new AdminServiceImpl();
+			adminService.copyPropertiesIgnoreNull(tempCar, car);
 			car.setUpdatedAt(LocalDateTime.now());
 			Car updatedCar = carRepository.save(car);
 			log.info(String.format("Car with id: %d is updated", id));
@@ -139,15 +136,23 @@ public class CarServiceImpl implements CarService {
 	 * @see Driver
 	 */
 	@Override
-	public void addTo(Long idCar, Long idDriver) {
+	public void addTo(Long idDriver, Long idCar) {
+		if(idDriver == 0) {
+
+		}
 		Optional<Car> optionalCar = carRepository.findById(idCar);
 		Optional<Driver> optionalDriver = driverRepository.findById(idDriver);
 		if (optionalDriver.isPresent() & optionalCar.isPresent()) {
-			Car car = optionalCar.get();
-			Driver driver = optionalDriver.get();
+			Car car = optionalCar.get(); //машина из базы
+			Driver driver = optionalDriver.get(); //водитель из базы
 			driver.getCars().add(car);
 			driver.setUpdatedAt(LocalDateTime.now());
-			driverRepository.save(driver);
+			car.setUpdatedAt(LocalDateTime.now());
+			car.setDriver(driver);
+			//carRepository.updateDriverById(driver, idCar);
+			//driverRepository.updateCarsById(car, idDriver);
+			carRepository.save(car);
+			//driverRepository.save(driver);
 		} else {
 			log.warn(optionalDriver.isEmpty() ? String.format(
 					"Driver with id: %d not found", idDriver)

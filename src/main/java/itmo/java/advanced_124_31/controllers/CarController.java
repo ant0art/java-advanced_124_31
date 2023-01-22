@@ -84,9 +84,9 @@ public class CarController {
 	 * @param idCar    ID of Car
 	 * @param idDriver ID od Driver
 	 */
-	@PutMapping("/add/{idCar}/{idDriver}")
-	public void addTo(@PathVariable("idCar") Long idCar,
-			@PathVariable("idDriver") Long idDriver) {
-		carService.addTo(idCar, idDriver);
+	@PutMapping("/add/{idDriver}/{idCar}")
+	public void addTo(@PathVariable("idDriver") Long idDriver,
+			@PathVariable("idCar") Long idCar) {
+		carService.addTo(idDriver, idCar);
 	}
 }

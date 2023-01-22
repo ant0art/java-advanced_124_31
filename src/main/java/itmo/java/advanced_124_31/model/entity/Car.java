@@ -1,6 +1,6 @@
 package itmo.java.advanced_124_31.model.entity;
 
-import itmo.java.advanced_124_31.service.Color;
+import itmo.java.advanced_124_31.model.enums.Color;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Car implements Serializable {
 
 	static final long SerialVersionUID = 1;
@@ -42,7 +43,7 @@ public class Car implements Serializable {
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "driver_id")
 	Driver driver;
 }

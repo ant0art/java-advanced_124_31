@@ -1,4 +1,4 @@
-package itmo.java.advanced_124_31.service;
+package itmo.java.advanced_124_31.model.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
