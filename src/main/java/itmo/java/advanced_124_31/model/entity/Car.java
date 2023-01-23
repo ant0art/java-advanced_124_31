@@ -14,9 +14,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "cars")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
 public class Car implements Serializable {
 
 	static final long SerialVersionUID = 1;
@@ -29,7 +26,6 @@ public class Car implements Serializable {
 	String name;
 	@Column
 	Integer wheels;
-	@Column
 	@Enumerated(EnumType.STRING)
 	Color color;
 	@Column(name = "vehicle_year")
@@ -44,7 +40,6 @@ public class Car implements Serializable {
 	LocalDateTime updatedAt;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "driver_id")
 	Driver driver;
 }
 

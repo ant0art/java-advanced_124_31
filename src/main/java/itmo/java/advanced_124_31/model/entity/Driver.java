@@ -15,8 +15,6 @@ import java.util.List;
 @Entity
 @Table(name = "drivers")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor
-@ToString
 public class Driver implements Serializable {
 
 	static final long SerialVersionUID = 1;
@@ -41,8 +39,7 @@ public class Driver implements Serializable {
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
-	@OneToMany(mappedBy = "driver", cascade = CascadeType.ALL)
-	@ToString.Exclude
+	@OneToMany(cascade = CascadeType.ALL)
 	List<Car> cars;
 
 }

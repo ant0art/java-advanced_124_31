@@ -5,26 +5,24 @@ import itmo.java.advanced_124_31.model.dto.CarDTO;
 import itmo.java.advanced_124_31.model.dto.DriverDTO;
 import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.model.entity.Driver;
-import itmo.java.advanced_124_31.model.repository.CarRepository;
 import itmo.java.advanced_124_31.model.repository.DriverRepository;
-import itmo.java.advanced_124_31.service.AdminService;
 import itmo.java.advanced_124_31.service.DriverService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DriverServiceImpl implements DriverService {
-	private final CarRepository carRepository;
 	private final DriverRepository driverRepository;
 
 	private final ObjectMapper mapper;
@@ -42,13 +40,9 @@ public class DriverServiceImpl implements DriverService {
 		Driver driver = mapper.convertValue(driverDTO, Driver.class);
 		driver.setBirthday(LocalDate.parse(driverDTO.getBirthday()));
 		driver.setCreatedAt(LocalDateTime.now());
-
-		List<Car> cars = new ArrayList<>();
-		driver.setCars(cars);
 		Driver savedDriver = driverRepository.save(driver);
 
 		//driver --> driverDTO
-
 		return read(savedDriver.getId());
 	}
 
@@ -62,7 +56,7 @@ public class DriverServiceImpl implements DriverService {
 	public DriverDTO read(Long id) {
 		DriverDTO res = new DriverDTO();
 		Optional<Driver> optionalDriver = driverRepository.findById(id);
-		if(optionalDriver.isPresent()){
+		if (optionalDriver.isPresent()) {
 			Driver driver = optionalDriver.get();
 			res.setName(driver.getName());
 			res.setSurname(driver.getName());
@@ -70,7 +64,7 @@ public class DriverServiceImpl implements DriverService {
 
 			List<CarDTO> carsDTO = Collections.emptyList();
 			List<Car> cars = driver.getCars();
-			if(!cars.isEmpty()) {
+			if (!CollectionUtils.isEmpty(cars)) {
 				carsDTO = cars.stream().map(car -> {
 					CarDTO carDTO = new CarDTO();
 					carDTO.setColor(car.getColor());
@@ -108,7 +102,7 @@ public class DriverServiceImpl implements DriverService {
 			driver.setId(id);
 			driver.setUpdatedAt(LocalDateTime.now());
 			AdminServiceImpl adminService = new AdminServiceImpl();
-			adminService.copyPropertiesIgnoreNull(tempDriver,driver);
+			adminService.copyPropertiesIgnoreNull(tempDriver, driver);
 			updatedDriver = driverRepository.save(driver);
 			log.info(String.format("Driver with id: %d is updated", id));
 			return read(updatedDriver.getId());
