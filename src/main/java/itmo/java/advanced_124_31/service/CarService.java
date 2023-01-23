@@ -16,4 +16,6 @@ public interface CarService {
 	List<CarDTO> getCars();
 
 	void addTo(Long idCar, Long idDriver);
+
+	void removeDriverFromCar(Long idCar);
 }

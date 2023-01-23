@@ -1,19 +1,10 @@
 package itmo.java.advanced_124_31.controllers;
 
 import itmo.java.advanced_124_31.model.dto.CarDTO;
-import itmo.java.advanced_124_31.model.dto.DriverDTO;
-import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.service.CarService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/cars")
@@ -88,5 +79,15 @@ public class CarController {
 	public void addTo(@PathVariable("idDriver") Long idDriver,
 			@PathVariable("idCar") Long idCar) {
 		carService.addTo(idDriver, idCar);
+	}
+
+	/**
+	 * Clear connection of Car and it`s Driver
+	 *
+	 * @param idCar ID of Car to be removed from it`s Driver
+	 */
+	@PutMapping("/remove/{idCar}")
+	public void remove(@PathVariable Long idCar) {
+		carService.removeDriverFromCar(idCar);
 	}
 }

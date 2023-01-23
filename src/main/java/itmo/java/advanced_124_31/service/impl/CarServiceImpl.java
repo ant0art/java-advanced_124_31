@@ -41,7 +41,7 @@ public class CarServiceImpl implements CarService {
 
 		Car savedCar = carRepository.save(car);
 
-		//driver --> driverDTO
+		//car --> carDTO
 
 		return read(savedCar.getId());
 	}
@@ -66,7 +66,6 @@ public class CarServiceImpl implements CarService {
 			return res;
 		}
 		log.warn(String.format("There are no elements with id: %d", id));
-		System.out.printf(String.format("There are no elements with id: %d%n", id));
 		return null;
 	}
 
@@ -106,7 +105,6 @@ public class CarServiceImpl implements CarService {
 	public void delete(Long id) {
 		Optional<Car> optDriver = carRepository.findById(id);
 		if (optDriver.isEmpty()) {
-			System.out.println("Nothing to delete");
 			log.info("Nothing to delete");
 		} else {
 			carRepository.delete(optDriver.get());
@@ -137,26 +135,37 @@ public class CarServiceImpl implements CarService {
 	 */
 	@Override
 	public void addTo(Long idDriver, Long idCar) {
-		if(idDriver == 0) {
-
-		}
 		Optional<Car> optionalCar = carRepository.findById(idCar);
 		Optional<Driver> optionalDriver = driverRepository.findById(idDriver);
 		if (optionalDriver.isPresent() & optionalCar.isPresent()) {
 			Car car = optionalCar.get(); //машина из базы
 			Driver driver = optionalDriver.get(); //водитель из базы
-			driver.getCars().add(car);
+			List<Car> cars = driver.getCars();
+			cars.add(car);
+			driver.setCars(cars);
 			driver.setUpdatedAt(LocalDateTime.now());
 			car.setUpdatedAt(LocalDateTime.now());
 			car.setDriver(driver);
-			//carRepository.updateDriverById(driver, idCar);
-			//driverRepository.updateCarsById(car, idDriver);
 			carRepository.save(car);
-			//driverRepository.save(driver);
 		} else {
 			log.warn(optionalDriver.isEmpty() ? String.format(
 					"Driver with id: %d not found", idDriver)
 					: String.format("Car with id: %d not found", idCar));
+		}
+	}
+
+	@Override
+	public void removeDriverFromCar(Long idCar) {
+		Optional<Car> optionalCar = carRepository.findById(idCar);
+		if (optionalCar.isPresent()) {
+			Car car = optionalCar.get();
+			Driver driver = car.getDriver();
+			List<Car> cars = driver.getCars();
+			cars.remove(car);
+			driver.setCars(cars);
+			driverRepository.save(driver);
+			car.setDriver(null);
+			carRepository.save(car);
 		}
 	}
 }
