@@ -1,5 +1,7 @@
 package itmo.java.advanced_124_31.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import itmo.java.advanced_124_31.model.enums.CarStatus;
 import itmo.java.advanced_124_31.model.enums.Color;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,10 +26,13 @@ public class Car implements Serializable {
 
 	@Column
 	String name;
+
 	@Column
 	Integer wheels;
+
 	@Enumerated(EnumType.STRING)
 	Color color;
+
 	@Column(name = "vehicle_year")
 	Integer vehicleYear;
 
@@ -40,7 +45,11 @@ public class Car implements Serializable {
 	LocalDateTime updatedAt;
 
 	@ManyToOne(cascade = CascadeType.ALL)
+	@JsonBackReference
 	Driver driver;
+
+	@Enumerated(EnumType.STRING)
+	CarStatus status;
 }
 
 
