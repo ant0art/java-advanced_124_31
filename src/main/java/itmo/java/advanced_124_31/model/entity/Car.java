@@ -1,15 +1,26 @@
 package itmo.java.advanced_124_31.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import itmo.java.advanced_124_31.model.enums.CarClass;
 import itmo.java.advanced_124_31.model.enums.CarStatus;
 import itmo.java.advanced_124_31.model.enums.Color;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -28,24 +39,33 @@ public class Car implements Serializable {
 	String name;
 
 	@Column
-	Integer wheels;
-
-	@Enumerated(EnumType.STRING)
 	Color color;
+
+	@Enumerated
+	@Column(name = "car_class")
+	CarClass carClass;
 
 	@Column(name = "vehicle_year")
 	Integer vehicleYear;
 
+	@Column(name = "state_number", nullable = false, unique = true, length = 9)
+	String stateNumber;
+
+	@Column(name = "baby_chair")
+	Boolean babyChair;
+
+	@Column
+	Integer seats;
+
 	@CreationTimestamp
-	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT " +
-			"CURRENT_TIMESTAMP", updatable = false)
+	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
 	LocalDateTime createdAt;
 
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JsonBackReference
+	@JsonBackReference(value = "driver_cars")
 	Driver driver;
 
 	@Enumerated(EnumType.STRING)
