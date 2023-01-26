@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface DriverRepository extends JpaRepository<Driver, Long> {
 
 	@NonNull
-	Optional <Driver> findById(@NonNull Long id);
+	Optional<Driver> findById(@NonNull Long id);
 }

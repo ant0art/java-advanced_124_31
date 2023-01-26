@@ -15,5 +15,4 @@ public enum Color {
 	YELLOW("желтый");
 
 	private final String name;
-
 }
