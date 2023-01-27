@@ -42,12 +42,7 @@ public class CarServiceImpl implements CarService {
 	 */
 	@Override
 	public CarDTORequest create(CarDTORequest carDTORequest) {
-		carRepository.findByStateNumberIgnoreCase(carDTORequest.getStateNumber())
-				.ifPresent(c -> {
-					throw new CustomException(
-							String.format("Car with number: %s already exists",
-									c.getStateNumber()), HttpStatus.BAD_REQUEST);
-				});
+		checkStateNumber(carDTORequest.getStateNumber());
 
 		//carDTO --> car
 		Car car = mapper.convertValue(carDTORequest, Car.class);
@@ -80,6 +75,10 @@ public class CarServiceImpl implements CarService {
 
 		AtomicReference<CarDTORequest> dto = new AtomicReference<>(new CarDTORequest());
 		carRepository.findById(id).ifPresentOrElse(c -> {
+			if (carDTORequest.getStateNumber() != null &&
+					!carDTORequest.getStateNumber().isEmpty()) {
+				checkStateNumber(carDTORequest.getStateNumber());
+			}
 			copyPropertiesIgnoreNull(mapper.convertValue(carDTORequest, Car.class), c);
 			updateStatus(c, CarStatus.UPDATED);
 			dto.set(mapper.convertValue(carRepository.save(c), CarDTORequest.class));
@@ -105,7 +104,7 @@ public class CarServiceImpl implements CarService {
 	/**
 	 * Get the List of all cars, included in DB
 	 *
-	 * @return List of CarsDTO
+	 * @return List of CarDTORequest
 	 */
 	@Override
 	public List<CarDTORequest> getCars() {
@@ -114,10 +113,10 @@ public class CarServiceImpl implements CarService {
 	}
 
 	/**
-	 * Add existed car to it`s driver
+	 * Add existed car to its driver
 	 *
 	 * @param idCar    ID of {@link itmo.java.advanced_124_31.model.entity.Car}
-	 * @param idDriver ID od {@link itmo.java.advanced_124_31.model.entity.Driver}
+	 * @param idDriver ID of {@link itmo.java.advanced_124_31.model.entity.Driver}
 	 * @see Car
 	 * @see Driver
 	 */
@@ -176,6 +175,28 @@ public class CarServiceImpl implements CarService {
 	private void updateStatus(Car car, CarStatus status) {
 		car.setStatus(status);
 		car.setUpdatedAt(LocalDateTime.now());
+	}
+
+	/**
+	 * Checks whether input state number is correct or not
+	 *
+	 * @param stateNumber input state number
+	 */
+	private void checkStateNumber(String stateNumber) throws CustomException {
+		if (stateNumber == null || stateNumber.isEmpty()) {
+			throw new CustomException("State number is missing", HttpStatus.BAD_REQUEST);
+		}
+		if (!stateNumber.matches("^[АВЕКМНОРСТУХ]\\d{3}(?<!000)[АВЕКМНОРСТУХ]{2}\\d{2," +
+				"3}$")) {
+			throw new CustomException("Wrong state number format",
+					HttpStatus.BAD_REQUEST);
+		}
+		carRepository.findByStateNumberIgnoreCase(stateNumber)
+				.ifPresent(c -> {
+					throw new CustomException(
+							String.format("Car with number: %s already exists",
+									c.getStateNumber()), HttpStatus.BAD_REQUEST);
+				});
 	}
 
 }
