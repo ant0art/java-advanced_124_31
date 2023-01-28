@@ -83,8 +83,9 @@ public class CarServiceImpl implements CarService {
 			updateStatus(c, CarStatus.UPDATED);
 			dto.set(mapper.convertValue(carRepository.save(c), CarDTORequest.class));
 		}, () -> {
-			log.warn("Nothing to update");
-			dto.set(null);
+			throw new CustomException(
+					String.format("Car with id: %d not found. Nothing to update", id),
+					HttpStatus.NOT_FOUND);
 		});
 		return dto.get();
 	}
@@ -186,17 +187,15 @@ public class CarServiceImpl implements CarService {
 		if (stateNumber == null || stateNumber.isEmpty()) {
 			throw new CustomException("State number is missing", HttpStatus.BAD_REQUEST);
 		}
-		if (!stateNumber.matches("^[АВЕКМНОРСТУХ]\\d{3}(?<!000)[АВЕКМНОРСТУХ]{2}\\d{2," +
-				"3}$")) {
+		if (!stateNumber.matches(
+				"^[АВЕКМНОРСТУХ]\\d{3}(?<!000)[АВЕКМНОРСТУХ]{2}\\d{2," + "3}$")) {
 			throw new CustomException("Wrong state number format",
 					HttpStatus.BAD_REQUEST);
 		}
-		carRepository.findByStateNumberIgnoreCase(stateNumber)
-				.ifPresent(c -> {
-					throw new CustomException(
-							String.format("Car with number: %s already exists",
-									c.getStateNumber()), HttpStatus.BAD_REQUEST);
-				});
+		carRepository.findByStateNumberIgnoreCase(stateNumber).ifPresent(c -> {
+			throw new CustomException(String.format("Car with number: %s already exists",
+					c.getStateNumber()), HttpStatus.BAD_REQUEST);
+		});
 	}
 
 }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
+	Optional<Driver> findByPhoneNumber(
+			@org.springframework.lang.NonNull String phoneNumber);
 
 	@NonNull
 	Optional<Driver> findById(@NonNull Long id);

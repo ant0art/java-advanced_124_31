@@ -34,6 +34,11 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 
 	@Override
 	public DriverLicenseDTO create(DriverLicenseDTO driverLicenseDTO) {
+		String receivedAt = driverLicenseDTO.getReceivedAt();
+		if (receivedAt == null || receivedAt.isEmpty()) {
+			throw new CustomException("Receiving date is missing",
+					HttpStatus.BAD_REQUEST);
+		}
 
 		//driverLicenseDTO --> driverLicense
 		DriverLicense license = mapper.convertValue(driverLicenseDTO,
@@ -64,8 +69,9 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 			dto.set(mapper.convertValue(driverLicenseRepository.save(d),
 					DriverLicenseDTO.class));
 		}, () -> {
-			log.warn("Nothing to update");
-			dto.set(null);
+			throw new CustomException(String.format(
+					"Driver license with id: %s not found. Nothing to update", id),
+					HttpStatus.NOT_FOUND);
 		});
 		return dto.get();
 	}

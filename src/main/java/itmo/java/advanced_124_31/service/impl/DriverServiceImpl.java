@@ -42,6 +42,7 @@ public class DriverServiceImpl implements DriverService {
 	 */
 	@Override
 	public DriverDTORequest create(DriverDTORequest driverDTORequest) {
+		checkPhoneNumber(driverDTORequest.getPhoneNumber());
 
 		//driverDTO --> driver
 		Driver driver = mapper.convertValue(driverDTORequest, Driver.class);
@@ -76,14 +77,19 @@ public class DriverServiceImpl implements DriverService {
 		AtomicReference<DriverDTORequest> dto = new AtomicReference<>(
 				new DriverDTORequest());
 		driverRepository.findById(id).ifPresentOrElse(d -> {
+			if (driverDTORequest.getPhoneNumber() != null &&
+					!driverDTORequest.getPhoneNumber().isEmpty()) {
+				checkPhoneNumber(driverDTORequest.getPhoneNumber());
+			}
 			copyPropertiesIgnoreNull(mapper.convertValue(driverDTORequest, Driver.class),
 					d);
 			updateStatus(d, DriverStatus.UPDATED);
 			dto.set(mapper.convertValue(driverRepository.save(d),
 					DriverDTORequest.class));
 		}, () -> {
-			log.warn("Nothing to update");
-			dto.set(null);
+			throw new CustomException(
+					String.format("Driver with id: %d not found. Nothing to update", id),
+					HttpStatus.NOT_FOUND);
 		});
 		return dto.get();
 	}
@@ -146,7 +152,7 @@ public class DriverServiceImpl implements DriverService {
 		Car car = driver.getCars().stream().filter(c -> c.getId().equals(idCar))
 				.findFirst().orElseThrow(() -> {
 					throw new CustomException(String.format(
-							"Car with ID number: %d can`t be used by driver with ID: ",
+							"Car with ID number: %d can`t be used by driver with ID: %d",
 							idCar, idDriver), HttpStatus.BAD_REQUEST);
 				});
 		driver.getWorkShifts().add(workShift);
@@ -170,5 +176,22 @@ public class DriverServiceImpl implements DriverService {
 		DriverDTORequest driverDTORequest = mapper.convertValue(
 				driverRepository.save(driver), DriverDTORequest.class);
 		return driverDTORequest;
+	}
+
+	/**
+	 * Checks whether input phone number is correct or not
+	 *
+	 * @param phoneNumber input phone number
+	 */
+	private void checkPhoneNumber(String phoneNumber) throws CustomException {
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			throw new CustomException("Phone number is missing", HttpStatus.BAD_REQUEST);
+		}
+
+		driverRepository.findByPhoneNumber(phoneNumber).ifPresent(p -> {
+			throw new CustomException(
+					String.format("driver with number: %s already exists",
+							p.getPhoneNumber()), HttpStatus.BAD_REQUEST);
+		});
 	}
 }

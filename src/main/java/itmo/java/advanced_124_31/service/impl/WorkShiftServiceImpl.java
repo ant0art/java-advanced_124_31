@@ -57,8 +57,10 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 			updateStatus(d, WorkShiftStatus.UPDATED);
 			dto.set(mapper.convertValue(workShiftRepository.save(d), WorkShiftDTO.class));
 		}, () -> {
-			log.warn("Nothing to update");
-			dto.set(null);
+			throw new CustomException(
+					String.format("Work shift with id: %d not found. Nothing to update",
+							id),
+					HttpStatus.NOT_FOUND);
 		});
 		return dto.get();
 	}
