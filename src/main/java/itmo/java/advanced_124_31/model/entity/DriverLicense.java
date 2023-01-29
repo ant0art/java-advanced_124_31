@@ -1,22 +1,20 @@
 package itmo.java.advanced_124_31.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import itmo.java.advanced_124_31.model.enums.DriverOrderStatus;
-import itmo.java.advanced_124_31.model.enums.DriverStatus;
+import itmo.java.advanced_124_31.model.enums.DriverLicenseCategory;
+import itmo.java.advanced_124_31.model.enums.DriverLicenseStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -28,36 +26,24 @@ import org.hibernate.annotations.CreationTimestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "drivers")
+@Table(name = "driver_licenses")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Driver implements Serializable {
+public class DriverLicense implements Serializable {
 
 	static final long SerialVersionUID = 1;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	Long id;
+	@Column(name = "id", nullable = false, unique = true)
+	String id;
 
-	@Column
-	String name;
+	@ElementCollection(targetClass = DriverLicenseCategory.class)
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	List<DriverLicenseCategory> categories;
 
-	@Column
-	String surname;
-
-	@Column(unique = true, nullable = false, name = "phone_number")
-	String phoneNumber;
-
-	@Column
+	@Column(name = "received_at")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	LocalDate birthday;
-
-	@OneToOne(cascade = CascadeType.ALL)
-	@JsonManagedReference(value = "driver_license")
-	DriverLicense license;
-
-	@OneToMany(cascade = CascadeType.ALL)
-	@JsonManagedReference(value = "driver_workshifts")
-	List<WorkShift> workShifts;
+	LocalDate receivedAt;
 
 	@CreationTimestamp
 	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
@@ -66,15 +52,10 @@ public class Driver implements Serializable {
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	@JsonManagedReference(value = "driver_cars")
-	List<Car> cars;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JsonBackReference(value = "driver_license")
+	Driver driver;
 
 	@Enumerated(EnumType.STRING)
-	DriverStatus status;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "driver_order_status")
-	DriverOrderStatus driverOrderStatus;
-
+	DriverLicenseStatus status;
 }

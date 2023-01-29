@@ -1,17 +1,28 @@
 package itmo.java.advanced_124_31.service;
 
-import itmo.java.advanced_124_31.model.dto.DriverDTO;
+import itmo.java.advanced_124_31.model.dto.DriverDTORequest;
+import itmo.java.advanced_124_31.model.dto.DriverDTOResponse;
+import itmo.java.advanced_124_31.model.entity.Driver;
+import itmo.java.advanced_124_31.model.enums.DriverStatus;
 import java.util.List;
 
 public interface DriverService {
 
-	DriverDTO create(DriverDTO driverDTO);
+	DriverDTORequest create(DriverDTORequest driverDTORequest);
 
-	DriverDTO read(Long id);
+	DriverDTORequest get(Long id);
 
-	DriverDTO update(Long id, DriverDTO driverDTO);
+	DriverDTORequest update(Long id, DriverDTORequest driverDTORequest);
 
 	void delete(Long id);
 
-	List<DriverDTO> getDrivers();
+	List<DriverDTORequest> getDrivers();
+
+	Driver getDriver(Long id);
+
+	void updateStatus(Driver driver, DriverStatus status);
+
+	DriverDTOResponse addToWorkShift(Long idWorkShift, Long idDriver, Long idCar);
+
+	DriverDTORequest removeDriverFromWorkShift(Long idWorkShift);
 }

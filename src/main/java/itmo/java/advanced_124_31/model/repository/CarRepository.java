@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CarRepository extends JpaRepository<Car, Long> {
 
-	@NonNull
-	Optional<Car> findById(@NonNull Long id);
+	Optional<Car> findByStateNumberIgnoreCase(String stateNumber);
+
+	@NonNull Optional<Car> findById(@NonNull Long id);
 }

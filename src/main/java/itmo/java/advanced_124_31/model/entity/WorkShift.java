@@ -1,9 +1,8 @@
 package itmo.java.advanced_124_31.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import itmo.java.advanced_124_31.model.enums.CarClass;
-import itmo.java.advanced_124_31.model.enums.CarStatus;
-import itmo.java.advanced_124_31.model.enums.Color;
+import itmo.java.advanced_124_31.model.enums.WorkShiftGrade;
+import itmo.java.advanced_124_31.model.enums.WorkShiftStatus;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
@@ -25,9 +24,9 @@ import org.hibernate.annotations.CreationTimestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "cars")
+@Table(name = "work_shifts")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Car implements Serializable {
+public class WorkShift implements Serializable {
 
 	static final long SerialVersionUID = 1;
 
@@ -35,27 +34,16 @@ public class Car implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 
-	@Column
-	String name;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JsonBackReference(value = "driver_workshifts")
+	Driver driver;
 
-	@Column
-	Color color;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JsonBackReference(value = "car_workshifts")
+	Car car;
 
-	@Enumerated
-	@Column(name = "car_class")
-	CarClass carClass;
-
-	@Column(name = "vehicle_year")
-	Integer vehicleYear;
-
-	@Column(name = "state_number", nullable = false, unique = true, length = 9)
-	String stateNumber;
-
-	@Column(name = "baby_chair")
-	Boolean babyChair;
-
-	@Column
-	Integer seats;
+	@Column(name = "grade")
+	WorkShiftGrade grade;
 
 	@CreationTimestamp
 	@Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
@@ -64,12 +52,9 @@ public class Car implements Serializable {
 	@Column(name = "updated_at")
 	LocalDateTime updatedAt;
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JsonBackReference(value = "driver_cars")
-	Driver driver;
+	@Column(name = "closed_at")
+	LocalDateTime closedAt;
 
 	@Enumerated(EnumType.STRING)
-	CarStatus status;
+	WorkShiftStatus status;
 }
-
-

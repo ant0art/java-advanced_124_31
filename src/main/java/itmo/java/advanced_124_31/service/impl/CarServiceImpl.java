@@ -1,49 +1,60 @@
 package itmo.java.advanced_124_31.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import itmo.java.advanced_124_31.model.dto.CarDTO;
+import itmo.java.advanced_124_31.model.dto.CarDTORequest;
+import itmo.java.advanced_124_31.model.dto.CarDTOResponse;
+import itmo.java.advanced_124_31.model.dto.DriverDTORequest;
 import itmo.java.advanced_124_31.model.entity.Car;
 import itmo.java.advanced_124_31.model.entity.Driver;
+import itmo.java.advanced_124_31.model.enums.CarStatus;
+import itmo.java.advanced_124_31.model.enums.DriverStatus;
+import itmo.java.advanced_124_31.model.exceptions.CustomException;
 import itmo.java.advanced_124_31.model.repository.CarRepository;
-import itmo.java.advanced_124_31.model.repository.DriverRepository;
-import itmo.java.advanced_124_31.service.AdminService;
 import itmo.java.advanced_124_31.service.CarService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
+import itmo.java.advanced_124_31.service.DriverService;
+import java.beans.PropertyDescriptor;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarServiceImpl implements CarService {
+
 	private final CarRepository carRepository;
-	private final DriverRepository driverRepository;
+	private final DriverService driverService;
 
 	private final ObjectMapper mapper;
 
 	/**
 	 * Set a new car to database
 	 *
-	 * @param carDTO new car to add
+	 * @param carDTORequest new car to add
 	 * @return a class object carDTO if everything is well
 	 */
 	@Override
-	public CarDTO create(CarDTO carDTO) {
+	public CarDTORequest create(CarDTORequest carDTORequest) {
+		carRepository.findByStateNumberIgnoreCase(carDTORequest.getStateNumber())
+				.ifPresent(c -> {
+					throw new CustomException(
+							String.format("Car with number: %s already exists",
+									c.getStateNumber()), HttpStatus.BAD_REQUEST);
+				});
 
 		//carDTO --> car
-		Car car = mapper.convertValue(carDTO, Car.class);
-		car.setCreatedAt(LocalDateTime.now());
-
-		Car savedCar = carRepository.save(car);
-
+		Car car = mapper.convertValue(carDTORequest, Car.class);
+		car.setStatus(CarStatus.CREATED);
 		//car --> carDTO
-
-		return read(savedCar.getId());
+		CarDTORequest readedDTO = get(carRepository.save(car).getId());
+		return readedDTO;
 	}
 
 	/**
@@ -53,47 +64,30 @@ public class CarServiceImpl implements CarService {
 	 * @return a class object carDTO
 	 */
 	@Override
-	public CarDTO read(Long id) {
-		Car car;
-		CarDTO res = new CarDTO();
-		Optional<Car> optCar = carRepository.findById(id);
-		if (optCar.isPresent()) {
-			car = optCar.get();
-			res.setName(car.getName());
-			res.setColor(car.getColor());
-			res.setWheels(car.getWheels());
-			res.setVehicleYear(car.getVehicleYear());
-			return res;
-		}
-		log.warn(String.format("There are no elements with id: %d", id));
-		return null;
+	public CarDTORequest get(Long id) {
+		return mapper.convertValue(getCar(id), CarDTORequest.class);
 	}
 
 	/**
 	 * Update fields of object by DTO
 	 *
-	 * @param id     ID of object to be updated
-	 * @param carDTO DTO object with definite fields to update
+	 * @param id            ID of object to be updated
+	 * @param carDTORequest DTO object with definite fields to update
 	 * @return DTO object as everything went right
 	 */
 	@Override
-	public CarDTO update(Long id, CarDTO carDTO) {
+	public CarDTORequest update(Long id, CarDTORequest carDTORequest) {
 
-		Optional<Car> optCar = carRepository.findById(id);
-		if (optCar.isEmpty()) {
+		AtomicReference<CarDTORequest> dto = new AtomicReference<>(new CarDTORequest());
+		carRepository.findById(id).ifPresentOrElse(c -> {
+			copyPropertiesIgnoreNull(mapper.convertValue(carDTORequest, Car.class), c);
+			updateStatus(c, CarStatus.UPDATED);
+			dto.set(mapper.convertValue(carRepository.save(c), CarDTORequest.class));
+		}, () -> {
 			log.warn("Nothing to update");
-		} else {
-			Car tempCar = mapper.convertValue(carDTO, Car.class);
-			Car car = optCar.get();
-			car.setId(id);
-			AdminService adminService = new AdminServiceImpl();
-			adminService.copyPropertiesIgnoreNull(tempCar, car);
-			car.setUpdatedAt(LocalDateTime.now());
-			Car updatedCar = carRepository.save(car);
-			log.info(String.format("Car with id: %d is updated", id));
-			return read(updatedCar.getId());
-		}
-		return carDTO;
+			dto.set(null);
+		});
+		return dto.get();
 	}
 
 	/**
@@ -103,13 +97,9 @@ public class CarServiceImpl implements CarService {
 	 */
 	@Override
 	public void delete(Long id) {
-		Optional<Car> optDriver = carRepository.findById(id);
-		if (optDriver.isEmpty()) {
-			log.info("Nothing to delete");
-		} else {
-			carRepository.delete(optDriver.get());
-			log.info(String.format("Driver with id: %d is deleted", id));
-		}
+		Car car = getCar(id);
+		updateStatus(car, CarStatus.DELETED);
+		carRepository.save(car);
 	}
 
 	/**
@@ -118,11 +108,9 @@ public class CarServiceImpl implements CarService {
 	 * @return List of CarsDTO
 	 */
 	@Override
-	public List<CarDTO> getCars() {
-
-		List<CarDTO> carsDTO = carRepository.findAll().stream().map(e -> read(e.getId()))
+	public List<CarDTORequest> getCars() {
+		return carRepository.findAll().stream().map(e -> get(e.getId()))
 				.collect(Collectors.toList());
-		return carsDTO;
 	}
 
 	/**
@@ -134,38 +122,60 @@ public class CarServiceImpl implements CarService {
 	 * @see Driver
 	 */
 	@Override
-	public void addTo(Long idDriver, Long idCar) {
-		Optional<Car> optionalCar = carRepository.findById(idCar);
-		Optional<Driver> optionalDriver = driverRepository.findById(idDriver);
-		if (optionalDriver.isPresent() & optionalCar.isPresent()) {
-			Car car = optionalCar.get(); //машина из базы
-			Driver driver = optionalDriver.get(); //водитель из базы
-			List<Car> cars = driver.getCars();
-			cars.add(car);
-			driver.setCars(cars);
-			driver.setUpdatedAt(LocalDateTime.now());
-			car.setUpdatedAt(LocalDateTime.now());
-			car.setDriver(driver);
-			carRepository.save(car);
-		} else {
-			log.warn(optionalDriver.isEmpty() ? String.format(
-					"Driver with id: %d not found", idDriver)
-					: String.format("Car with id: %d not found", idCar));
-		}
+	public CarDTOResponse addTo(Long idDriver, Long idCar) {
+
+		Driver driver = driverService.getDriver(idDriver);
+		Car car = getCar(idCar);
+		driver.getCars().add(car);
+		car.setDriver(driver);
+		updateStatus(car, CarStatus.UPDATED);
+		driverService.updateStatus(driver, DriverStatus.UPDATED);
+		CarDTOResponse response = mapper.convertValue(carRepository.save(car),
+				CarDTOResponse.class);
+		response.setDriverDTORequest(mapper.convertValue(driver, DriverDTORequest.class));
+		return response;
 	}
 
 	@Override
-	public void removeDriverFromCar(Long idCar) {
-		Optional<Car> optionalCar = carRepository.findById(idCar);
-		if (optionalCar.isPresent()) {
-			Car car = optionalCar.get();
-			Driver driver = car.getDriver();
-			List<Car> cars = driver.getCars();
-			cars.remove(car);
-			driver.setCars(cars);
-			driverRepository.save(driver);
-			car.setDriver(null);
-			carRepository.save(car);
+	public CarDTORequest removeDriverFromCar(Long id) {
+
+		Car car = getCar(id);
+		Driver driver = car.getDriver();
+		driver.getCars().remove(car);
+		driverService.updateStatus(driver, DriverStatus.UPDATED);
+		//driverRepository.save(driver);
+		car.setDriver(null);
+		updateStatus(car, CarStatus.UPDATED);
+		CarDTORequest request = mapper.convertValue(carRepository.save(car),
+				CarDTORequest.class);
+		return request;
+	}
+
+	private void copyPropertiesIgnoreNull(Object source, Object target) {
+		BeanWrapper src = new BeanWrapperImpl(source);
+		BeanWrapper trg = new BeanWrapperImpl(target);
+
+		for (PropertyDescriptor descriptor : src.getPropertyDescriptors()) {
+			String propertyName = descriptor.getName();
+			if (propertyName.equals("class")) {
+				continue;
+			}
+			Object propertyValue = src.getPropertyValue(propertyName);
+			if (propertyValue != null) {
+				trg.setPropertyValue(propertyName, propertyValue);
+			}
 		}
 	}
+
+	private Car getCar(Long id) {
+		return carRepository.findById(id).orElseThrow(
+				() -> new CustomException(String.format("Car with ID: %d not found", id),
+						HttpStatus.NOT_FOUND));
+	}
+
+	private void updateStatus(Car car, CarStatus status) {
+		car.setStatus(status);
+		car.setUpdatedAt(LocalDateTime.now());
+	}
+
 }
