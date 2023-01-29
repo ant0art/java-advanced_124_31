@@ -124,8 +124,13 @@ public class CarServiceImpl implements CarService {
 	@Override
 	public CarDTOResponse addTo(Long idDriver, Long idCar) {
 
-		Driver driver = driverService.getDriver(idDriver);
 		Car car = getCar(idCar);
+		if (car.getDriver() != null) {
+			throw new CustomException(
+					String.format("Cars (id = %d) field {driver} is not empty", idCar),
+					HttpStatus.BAD_REQUEST);
+		}
+		Driver driver = driverService.getDriver(idDriver);
 		driver.getCars().add(car);
 		car.setDriver(driver);
 		updateStatus(car, CarStatus.UPDATED);
@@ -141,6 +146,11 @@ public class CarServiceImpl implements CarService {
 
 		Car car = getCar(id);
 		Driver driver = car.getDriver();
+		if (driver == null) {
+			throw new CustomException(
+					String.format("Car (id = %d) field " + "{driver} is already cleared",
+							id), HttpStatus.BAD_REQUEST);
+		}
 		driver.getCars().remove(car);
 		driverService.updateStatus(driver, DriverStatus.UPDATED);
 		//driverRepository.save(driver);

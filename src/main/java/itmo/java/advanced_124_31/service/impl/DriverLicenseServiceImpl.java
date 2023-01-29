@@ -94,8 +94,9 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 
 		DriverLicense license = getDriverLicense(idLicense);
 		if (license.getDriver() != null) {
-			throw new CustomException("This lisence is currently used by another driver",
-					HttpStatus.BAD_REQUEST);
+			throw new CustomException(
+					String.format("Driver license (id = %s) field {driver} is not empty",
+							idLicense), HttpStatus.BAD_REQUEST);
 		}
 		Driver driver = driverService.getDriver(idDriver);
 		license.setDriver(driver);
@@ -111,6 +112,11 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 	public DriverLicenseDTO removeDriverLicenseFromDriver(String id) {
 		DriverLicense license = getDriverLicense(id);
 		Driver driver = license.getDriver();
+		if (driver == null) {
+			throw new CustomException(String.format(
+					"Driver license (id = %s) field " + "{driver} is already cleared",
+					id), HttpStatus.BAD_REQUEST);
+		}
 		license.setDriver(null);
 		updateStatus(license, DriverLicenseStatus.UPDATED);
 		driver.setLicense(null);
