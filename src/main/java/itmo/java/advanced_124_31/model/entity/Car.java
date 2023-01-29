@@ -51,10 +51,10 @@ public class Car implements Serializable {
 	@Column(name = "state_number", nullable = false, unique = true, length = 9)
 	String stateNumber;
 
-	@Column(name = "baby_chair", columnDefinition = "false")
+	@Column(name = "baby_chair", columnDefinition = "BOOLEAN DEFAULT false")
 	Boolean babyChair;
 
-	@Column(columnDefinition = "4")
+	@Column(columnDefinition = "integer default 4")
 	Integer seats;
 
 	@CreationTimestamp
