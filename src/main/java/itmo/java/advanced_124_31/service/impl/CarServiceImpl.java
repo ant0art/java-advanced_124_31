@@ -12,6 +12,7 @@ import itmo.java.advanced_124_31.model.exceptions.CustomException;
 import itmo.java.advanced_124_31.model.repository.CarRepository;
 import itmo.java.advanced_124_31.service.CarService;
 import itmo.java.advanced_124_31.service.DriverService;
+import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,8 +22,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 @Slf4j
 @Service
@@ -103,14 +109,44 @@ public class CarServiceImpl implements CarService {
 	}
 
 	/**
-	 * Get the List of all cars, included in DB
+	 * Returns a model map of all objects cars in a limited size list sorted by chosen
+	 * parameter
 	 *
-	 * @return List of CarDTORequest
+	 * @param page    serial number of page to show
+	 * @param perPage elements on page
+	 * @param sort    main parameter of sorting
+	 * @param order   ASC or DESC
+	 * @return ModelMap of sorted elements
+	 * @see ModelMap
 	 */
 	@Override
-	public List<CarDTORequest> getCars() {
-		return carRepository.findAll().stream().map(e -> get(e.getId()))
+	public ModelMap getCars(Integer page, Integer perPage, String sort,
+			Sort.Direction order) {
+		if (perPage == 0) {
+			throw new CustomException("Page size must not be less than one",
+					HttpStatus.BAD_REQUEST);
+		}
+
+		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
+
+		//view 1
+		Page<Car> pageResult = carRepository.findAll(pageRequest);
+
+		List<CarDTORequest> content = pageResult.getContent().stream()
+				.map(c -> mapper.convertValue(c, CarDTORequest.class))
 				.collect(Collectors.toList());
+		//view 2
+		PagedListHolder<CarDTORequest> result = new PagedListHolder<>(content);
+		result.setPage(page);
+		result.setPageSize(perPage);
+
+		ModelMap map = new ModelMap();
+		map.addAttribute("content", result.getPageList());
+		map.addAttribute("pageNumber", page);
+		map.addAttribute("PageSize", result.getPageSize());
+		map.addAttribute("totalPages", result.getPageCount()); //возвращает единицу
+
+		return map;
 	}
 
 	/**
@@ -207,5 +243,4 @@ public class CarServiceImpl implements CarService {
 					c.getStateNumber()), HttpStatus.BAD_REQUEST);
 		});
 	}
-
 }

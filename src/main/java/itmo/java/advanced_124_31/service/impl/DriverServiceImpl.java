@@ -14,6 +14,7 @@ import itmo.java.advanced_124_31.model.exceptions.CustomException;
 import itmo.java.advanced_124_31.model.repository.DriverRepository;
 import itmo.java.advanced_124_31.service.DriverService;
 import itmo.java.advanced_124_31.service.WorkShiftService;
+import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -116,9 +120,16 @@ public class DriverServiceImpl implements DriverService {
 	 * @return List of DriversDTO
 	 */
 	@Override
-	public List<DriverDTORequest> getDrivers() {
-		return driverRepository.findAll().stream().map(e -> get(e.getId()))
+	public List<DriverDTORequest> getDrivers(Integer page, Integer perPage, String sort,
+			Sort.Direction order) {
+		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
+		//view 1
+		Page<Driver> pageResult = driverRepository.findAll(pageRequest);
+
+		List<DriverDTORequest> content = pageResult.getContent().stream()
+				.map(d -> mapper.convertValue(d, DriverDTORequest.class))
 				.collect(Collectors.toList());
+		return content;
 	}
 
 	private void copyPropertiesIgnoreNull(Object source, Object target) {

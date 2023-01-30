@@ -2,7 +2,8 @@ package itmo.java.advanced_124_31.service;
 
 import itmo.java.advanced_124_31.model.dto.CarDTORequest;
 import itmo.java.advanced_124_31.model.dto.CarDTOResponse;
-import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.ui.ModelMap;
 
 public interface CarService {
 
@@ -14,10 +15,9 @@ public interface CarService {
 
 	void delete(Long id);
 
-	List<CarDTORequest> getCars();
+	ModelMap getCars(Integer page, Integer perPage, String sort, Sort.Direction order);
 
 	CarDTOResponse addTo(Long idCar, Long idDriver);
 
 	CarDTORequest removeDriverFromCar(Long id);
-
 }

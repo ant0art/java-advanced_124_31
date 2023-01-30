@@ -7,6 +7,7 @@ import itmo.java.advanced_124_31.model.enums.WorkShiftStatus;
 import itmo.java.advanced_124_31.model.exceptions.CustomException;
 import itmo.java.advanced_124_31.model.repository.WorkShiftRepository;
 import itmo.java.advanced_124_31.service.WorkShiftService;
+import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +63,7 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		}, () -> {
 			throw new CustomException(
 					String.format("Work shift with id: %d not found. Nothing to update",
-							id),
-					HttpStatus.NOT_FOUND);
+							id), HttpStatus.NOT_FOUND);
 		});
 		return dto.get();
 	}
@@ -73,9 +76,16 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 	}
 
 	@Override
-	public List<WorkShiftDTO> getWorkShifts() {
-		return workShiftRepository.findAll().stream().map(e -> get(e.getId()))
+	public List<WorkShiftDTO> getWorkShifts(Integer page, Integer perPage, String sort,
+			Sort.Direction order) {
+		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
+		//view 1
+		Page<WorkShift> pageResult = workShiftRepository.findAll(pageRequest);
+
+		List<WorkShiftDTO> content = pageResult.getContent().stream()
+				.map(d -> mapper.convertValue(d, WorkShiftDTO.class))
 				.collect(Collectors.toList());
+		return content;
 	}
 
 	private void copyPropertiesIgnoreNull(Object source, Object target) {
