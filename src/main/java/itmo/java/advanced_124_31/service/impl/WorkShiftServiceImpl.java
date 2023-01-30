@@ -32,6 +32,13 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 
 	private final ObjectMapper mapper;
 
+	/**
+	 * Returns a {@link WorkShiftDTO} object after adding new object WorkShift
+	 *
+	 * @param workShiftDTO new work shift to add
+	 * @return a class object {@link WorkShiftDTO} if everything is well
+	 * @see WorkShift
+	 */
 	@Override
 	public WorkShiftDTO create(WorkShiftDTO workShiftDTO) {
 
@@ -46,11 +53,25 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		return resultDTO;
 	}
 
+	/**
+	 * Returns a {@link WorkShiftDTO} object by the given id if it is found
+	 *
+	 * @param id work shift ID
+	 * @return the entity DTO with the given id
+	 */
 	@Override
 	public WorkShiftDTO get(Long id) {
 		return mapper.convertValue(getWorkShift(id), WorkShiftDTO.class);
 	}
 
+	/**
+	 * Returns a {@link WorkShiftDTO} object after updating fields of its entity
+	 *
+	 * @param id           ID of object to be updated
+	 * @param workShiftDTO WorkShiftDTO with fields to update
+	 * @return a class object {@link WorkShiftDTO} if everything is well
+	 * @see WorkShift
+	 */
 	@Override
 	public WorkShiftDTO update(Long id, WorkShiftDTO workShiftDTO) {
 
@@ -68,6 +89,11 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		return dto.get();
 	}
 
+	/**
+	 * Delete object by ID from DB
+	 *
+	 * @param id ID of object to delete
+	 */
 	@Override
 	public void delete(Long id) {
 		WorkShift workShift = getWorkShift(id);
@@ -75,6 +101,19 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		workShiftRepository.save(workShift);
 	}
 
+	/**
+	 * Returns a list of all objects work shifts in a limited size list sorted by
+	 * chosen parameter
+	 *
+	 * @param page    serial number of page to show
+	 * @param perPage elements on page
+	 * @param sort    main parameter of sorting
+	 * @param order   ASC or DESC
+	 * @return List<WorkShiftDTO> of sorted elements
+	 * @see PaginationUtil
+	 * @see Pageable
+	 * @see Page
+	 */
 	@Override
 	public List<WorkShiftDTO> getWorkShifts(Integer page, Integer perPage, String sort,
 			Sort.Direction order) {
@@ -88,6 +127,13 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		return content;
 	}
 
+	/**
+	 * Copy properties from one object to another field to field (excluding class)
+	 * ignoring null
+	 *
+	 * @param source source object, must not be Null
+	 * @param target target object, must not be Null
+	 */
 	private void copyPropertiesIgnoreNull(Object source, Object target) {
 		BeanWrapper src = new BeanWrapperImpl(source);
 		BeanWrapper trg = new BeanWrapperImpl(target);
@@ -104,6 +150,13 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 		}
 	}
 
+	/**
+	 * Returns the entity with the given id if it is found
+	 *
+	 * @param id work shift ID
+	 * @return the entity with the given id
+	 * @see WorkShift
+	 */
 	@Override
 	public WorkShift getWorkShift(Long id) {
 		return workShiftRepository.findById(id).orElseThrow(() -> new CustomException(
@@ -111,6 +164,14 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 				HttpStatus.NOT_FOUND));
 	}
 
+	/**
+	 * Change the state of {@link WorkShift}-entity by chosen and set the entity field
+	 * updatedAt new local date time
+	 *
+	 * @param workShift driver-entity
+	 * @param status    new state of entity
+	 * @see LocalDateTime
+	 */
 	@Override
 	public void updateStatus(WorkShift workShift, WorkShiftStatus status) {
 		workShift.setStatus(status);

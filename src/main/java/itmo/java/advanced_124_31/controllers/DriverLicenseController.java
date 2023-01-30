@@ -93,9 +93,9 @@ public class DriverLicenseController {
 	}
 
 	/**
-	 * Clear connection of DriverLicense and it`s Driver
+	 * Clear connection of DriverLicense and its Driver
 	 *
-	 * @param id ID of DriverLicense to be removed from it`s Driver
+	 * @param id ID of DriverLicense to be removed from its Driver
 	 */
 	@PutMapping("/removeFromDriver")
 	@Operation(summary = "Remove a connection between driver license and its driver")

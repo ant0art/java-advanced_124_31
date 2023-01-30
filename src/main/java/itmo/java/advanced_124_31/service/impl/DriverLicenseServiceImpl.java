@@ -36,6 +36,13 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 
 	private final ObjectMapper mapper;
 
+	/**
+	 * Returns a {@link DriverLicenseDTO} object after adding new object DriverLicense
+	 *
+	 * @param driverLicenseDTO new driver license to add
+	 * @return a class object DriverLicenseDTO if everything is well
+	 * @see DriverLicense
+	 */
 	@Override
 	public DriverLicenseDTO create(DriverLicenseDTO driverLicenseDTO) {
 		String receivedAt = driverLicenseDTO.getReceivedAt();
@@ -56,11 +63,25 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		return licenseDTO;
 	}
 
+	/**
+	 * Returns a {@link DriverLicenseDTO} object by the given id if it is found
+	 *
+	 * @param id driver license ID
+	 * @return the entity DTO with the given id
+	 */
 	@Override
 	public DriverLicenseDTO get(String id) {
 		return mapper.convertValue(getDriverLicense(id), DriverLicenseDTO.class);
 	}
 
+	/**
+	 * Returns a {@link DriverLicenseDTO} object after updating fields of its entity
+	 *
+	 * @param id               ID of object to be updated
+	 * @param driverLicenseDTO DriverLicenseDTO with fields to update
+	 * @return a class object DriverLicenseDTO if everything is well
+	 * @see DriverLicense
+	 */
 	@Override
 	public DriverLicenseDTO update(String id, DriverLicenseDTO driverLicenseDTO) {
 
@@ -80,6 +101,11 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		return dto.get();
 	}
 
+	/**
+	 * Delete object by ID from DB
+	 *
+	 * @param id ID of object to delete
+	 */
 	@Override
 	public void delete(String id) {
 		DriverLicense driverLicense = getDriverLicense(id);
@@ -87,6 +113,19 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		driverLicenseRepository.save(driverLicense);
 	}
 
+	/**
+	 * Returns a list of all objects driver licenses in a limited size list sorted by
+	 * chosen parameter
+	 *
+	 * @param page    serial number of page to show
+	 * @param perPage elements on page
+	 * @param sort    main parameter of sorting
+	 * @param order   ASC or DESC
+	 * @return List<DriverLicenseDTO> of sorted elements
+	 * @see PaginationUtil
+	 * @see Pageable
+	 * @see Page
+	 */
 	@Override
 	public List<DriverLicenseDTO> getLicenses(Integer page, Integer perPage,
 			String sort, Sort.Direction order) {
@@ -100,6 +139,17 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		return content;
 	}
 
+	/**
+	 * Returns a {@link DriverLicenseDTO} object after adding DriverLicense-entity to
+	 * Driver-entity
+	 *
+	 * @param idLicense ID of {@link itmo.java.advanced_124_31.model.entity.DriverLicense} to be
+	 *                  added
+	 * @param idDriver  ID of {@link itmo.java.advanced_124_31.model.entity.Driver} to add
+	 * @return a class object DriverLicenseDTO if everything is well
+	 * @see Driver
+	 * @see DriverLicense
+	 */
 	@Override
 	public DriverLicenseDTO addTo(Long idDriver, String idLicense) {
 
@@ -119,6 +169,13 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		return driverLicenseDTO;
 	}
 
+	/**
+	 * Returns a {@link DriverLicenseDTO} object after cleaning the connection between
+	 * DriverLicense and it`s Driver
+	 *
+	 * @param id ID of {@link DriverLicense} to be removed from its {@link Driver}
+	 * @return {@link DriverLicenseDTO} object if removing ends well
+	 */
 	@Override
 	public DriverLicenseDTO removeDriverLicenseFromDriver(String id) {
 		DriverLicense license = getDriverLicense(id);
@@ -137,6 +194,13 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		return driverLicenseDTO;
 	}
 
+	/**
+	 * Copy properties from one object to another field to field (excluding class)
+	 * ignoring null
+	 *
+	 * @param source source object, must not be Null
+	 * @param target target object, must not be Null
+	 */
 	private void copyPropertiesIgnoreNull(Object source, Object target) {
 		BeanWrapper src = new BeanWrapperImpl(source);
 		BeanWrapper trg = new BeanWrapperImpl(target);
@@ -153,6 +217,12 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		}
 	}
 
+	/**
+	 * Returns the entity with the given id if it is found
+	 *
+	 * @param id driver license ID
+	 * @return the entity with the given id
+	 */
 	@Override
 	public DriverLicense getDriverLicense(String id) {
 		return driverLicenseRepository.findById(id).orElseThrow(() -> new CustomException(
@@ -160,6 +230,14 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 				HttpStatus.NOT_FOUND));
 	}
 
+	/**
+	 * Change the state of {@link DriverLicense}-entity by chosen and set the entity field
+	 * updatedAt new local date time
+	 *
+	 * @param driverLicense driver-entity
+	 * @param status        new state of entity
+	 * @see LocalDateTime
+	 */
 	@Override
 	public void updateStatus(DriverLicense driverLicense, DriverLicenseStatus status) {
 		driverLicense.setStatus(status);

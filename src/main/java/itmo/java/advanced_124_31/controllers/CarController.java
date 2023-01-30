@@ -79,7 +79,7 @@ public class CarController {
 	}
 
 	/**
-	 * Add existed car to it`s driver
+	 * Add existed car to its driver
 	 *
 	 * @param idCar    ID of Car
 	 * @param idDriver ID od Driver
@@ -92,9 +92,9 @@ public class CarController {
 	}
 
 	/**
-	 * Clear connection of Car and it`s Driver
+	 * Clear connection of Car and its Driver
 	 *
-	 * @param id ID of Car to be removed from it`s Driver
+	 * @param id ID of Car to be removed from its Driver
 	 */
 	@PutMapping("/removeFromDriver")
 	@Operation(summary = "Remove a connection between car and its driver")

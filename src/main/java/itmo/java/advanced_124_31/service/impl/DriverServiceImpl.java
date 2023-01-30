@@ -43,10 +43,11 @@ public class DriverServiceImpl implements DriverService {
 	private final ObjectMapper mapper;
 
 	/**
-	 * Set a new driver to database
+	 * Returns a {@link DriverDTORequest} object after adding new object Driver
 	 *
 	 * @param driverDTORequest new driver to add
-	 * @return a class object driverDTO if everything is well
+	 * @return a class object {@link DriverDTORequest} if everything is well
+	 * @see Driver
 	 */
 	@Override
 	public DriverDTORequest create(DriverDTORequest driverDTORequest) {
@@ -62,10 +63,10 @@ public class DriverServiceImpl implements DriverService {
 	}
 
 	/**
-	 * Read the entity-Driver id and returns it DTO
+	 * Returns a {@link DriverDTORequest} object by the given id if it is found
 	 *
-	 * @param id ID of driver in database
-	 * @return a class object driverDTO
+	 * @param id driver ID
+	 * @return the entity DTO with the given id
 	 */
 	@Override
 	public DriverDTORequest get(Long id) {
@@ -73,11 +74,12 @@ public class DriverServiceImpl implements DriverService {
 	}
 
 	/**
-	 * Update fields of object by DTO
+	 * Returns a {@link DriverDTORequest} object after updating fields of its entity
 	 *
 	 * @param id               ID of object to be updated
-	 * @param driverDTORequest DTO object with definite fields to update
-	 * @return DTO object as everything went right
+	 * @param driverDTORequest DriverDTORequest with fields to update
+	 * @return a class object {@link DriverDTORequest} if everything is well
+	 * @see Driver
 	 */
 	@Override
 	public DriverDTORequest update(Long id, DriverDTORequest driverDTORequest) {
@@ -115,9 +117,17 @@ public class DriverServiceImpl implements DriverService {
 	}
 
 	/**
-	 * Get the List of all drivers, included in DB
+	 * Returns a list of all objects drivers in a limited size list sorted by
+	 * chosen parameter
 	 *
-	 * @return List of DriversDTO
+	 * @param page    serial number of page to show
+	 * @param perPage elements on page
+	 * @param sort    main parameter of sorting
+	 * @param order   ASC or DESC
+	 * @return List<DriverDTORequest> of sorted elements
+	 * @see PaginationUtil
+	 * @see Pageable
+	 * @see Page
 	 */
 	@Override
 	public List<DriverDTORequest> getDrivers(Integer page, Integer perPage, String sort,
@@ -132,6 +142,13 @@ public class DriverServiceImpl implements DriverService {
 		return content;
 	}
 
+	/**
+	 * Copy properties from one object to another field to field (excluding class)
+	 * ignoring null
+	 *
+	 * @param source source object, must not be Null
+	 * @param target target object, must not be Null
+	 */
 	private void copyPropertiesIgnoreNull(Object source, Object target) {
 		BeanWrapper src = new BeanWrapperImpl(source);
 		BeanWrapper trg = new BeanWrapperImpl(target);
@@ -148,18 +165,47 @@ public class DriverServiceImpl implements DriverService {
 		}
 	}
 
+	/**
+	 * Returns the entity with the given id if it is found
+	 *
+	 * @param id driver ID
+	 * @return the entity with the given id
+	 * @see Driver
+	 */
 	@Override
 	public Driver getDriver(Long id) {
 		return driverRepository.findById(id).orElseThrow(() -> new CustomException(
 				String.format("Driver with ID: %d not found", id), HttpStatus.NOT_FOUND));
 	}
 
+	/**
+	 * Change the state of {@link Driver}-entity by chosen and set the entity field
+	 * updatedAt new local date time
+	 *
+	 * @param driver driver-entity
+	 * @param status new state of entity
+	 * @see LocalDateTime
+	 */
 	@Override
 	public void updateStatus(Driver driver, DriverStatus status) {
 		driver.setStatus(status);
 		driver.setUpdatedAt(LocalDateTime.now());
 	}
 
+	/**
+	 * Returns a {@link DriverDTOResponse} object after adding Driver-entity, Car-entity to
+	 * WorkShift-entity
+	 *
+	 * @param idWorkShift ID of
+	 *                    {@link itmo.java.advanced_124_31.model.entity.WorkShift} to add
+	 * @param idCar       ID of {@link itmo.java.advanced_124_31.model.entity.Car}
+	 *                    to be added
+	 * @param idDriver    ID of {@link itmo.java.advanced_124_31.model.entity.Driver} to be added
+	 * @return a class object {@link DriverDTOResponse if everything is well
+	 * @see WorkShift
+	 * @see Car
+	 * @see Driver
+	 */
 	@Override
 	public DriverDTOResponse addToWorkShift(Long idWorkShift, Long idDriver, Long idCar) {
 		WorkShift workShift = workShiftService.getWorkShift(idWorkShift);
@@ -187,6 +233,13 @@ public class DriverServiceImpl implements DriverService {
 		return driverDTOResponse;
 	}
 
+	/**
+	 * Returns a {@link DriverDTORequest} object after cleaning the connection between
+	 * WorkShift and it`s Driver
+	 *
+	 * @param idWorkShift ID of WorkShift to remove its Driver
+	 * @return {@link DriverDTORequest} object if removing ends well
+	 */
 	@Override
 	public DriverDTORequest removeDriverFromWorkShift(Long idWorkShift) {
 		WorkShift workShift = workShiftService.getWorkShift(idWorkShift);
@@ -223,6 +276,13 @@ public class DriverServiceImpl implements DriverService {
 		});
 	}
 
+	/**
+	 * Returns the grade by checking input val properties
+	 *
+	 * @param driver driver-entity
+	 * @param car    car-entity
+	 * @return the ex of enum {@link WorkShiftGrade}
+	 */
 	private WorkShiftGrade getWorkShiftGrade(Driver driver, Car car) {
 
 		//driver experience

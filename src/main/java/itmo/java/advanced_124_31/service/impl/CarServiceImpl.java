@@ -41,10 +41,11 @@ public class CarServiceImpl implements CarService {
 	private final ObjectMapper mapper;
 
 	/**
-	 * Set a new car to database
+	 * Returns a {@link CarDTORequest} object after adding new object Car
 	 *
 	 * @param carDTORequest new car to add
-	 * @return a class object carDTO if everything is well
+	 * @return a class object CarDTORequest if everything is well
+	 * @see Car
 	 */
 	@Override
 	public CarDTORequest create(CarDTORequest carDTORequest) {
@@ -59,10 +60,10 @@ public class CarServiceImpl implements CarService {
 	}
 
 	/**
-	 * Read the entity-Car id and returns it DTO
+	 * Returns the entity DTO with the given id if it is found
 	 *
-	 * @param id ID of car in database
-	 * @return a class object carDTO
+	 * @param id Car ID
+	 * @return the entity DTO with the given id
 	 */
 	@Override
 	public CarDTORequest get(Long id) {
@@ -70,11 +71,12 @@ public class CarServiceImpl implements CarService {
 	}
 
 	/**
-	 * Update fields of object by DTO
+	 * Returns a {@link CarDTORequest} object after updating fields of its entity
 	 *
 	 * @param id            ID of object to be updated
-	 * @param carDTORequest DTO object with definite fields to update
-	 * @return DTO object as everything went right
+	 * @param carDTORequest CarDTORequest with fields to update
+	 * @return a class object CarDTORequest if everything is well
+	 * @see Car
 	 */
 	@Override
 	public CarDTORequest update(Long id, CarDTORequest carDTORequest) {
@@ -118,6 +120,8 @@ public class CarServiceImpl implements CarService {
 	 * @param order   ASC or DESC
 	 * @return ModelMap of sorted elements
 	 * @see ModelMap
+	 * @see Pageable
+	 * @see Page
 	 */
 	@Override
 	public ModelMap getCars(Integer page, Integer perPage, String sort,
@@ -150,10 +154,12 @@ public class CarServiceImpl implements CarService {
 	}
 
 	/**
-	 * Add existed car to its driver
+	 * Returns a {@link CarDTOResponse} object after adding Car-entity to Driver-entity
 	 *
-	 * @param idCar    ID of {@link itmo.java.advanced_124_31.model.entity.Car}
-	 * @param idDriver ID of {@link itmo.java.advanced_124_31.model.entity.Driver}
+	 * @param idCar    ID of {@link itmo.java.advanced_124_31.model.entity.Car} to be
+	 *                 added
+	 * @param idDriver ID of {@link itmo.java.advanced_124_31.model.entity.Driver} to add
+	 * @return a class object {@link CarDTOResponse} if everything is well
 	 * @see Car
 	 * @see Driver
 	 */
@@ -177,6 +183,13 @@ public class CarServiceImpl implements CarService {
 		return response;
 	}
 
+	/**
+	 * Returns a {@link CarDTORequest} object after cleaning the connection between Car and its
+	 * Driver
+	 *
+	 * @param id ID of Car to be removed from its Driver
+	 * @return {@link CarDTORequest} object if removing ends well
+	 */
 	@Override
 	public CarDTORequest removeDriverFromCar(Long id) {
 
@@ -197,6 +210,15 @@ public class CarServiceImpl implements CarService {
 		return request;
 	}
 
+	/**
+	 * Copy properties from one object to another field to field (excluding class)
+	 * ignoring null
+	 *
+	 * @param source source object, must not be Null
+	 * @param target target object, must not be Null
+	 * @see org.springframework.beans.BeanWrapper
+	 * @see org.springframework.beans.BeanWrapperImpl
+	 */
 	private void copyPropertiesIgnoreNull(Object source, Object target) {
 		BeanWrapper src = new BeanWrapperImpl(source);
 		BeanWrapper trg = new BeanWrapperImpl(target);
@@ -213,12 +235,26 @@ public class CarServiceImpl implements CarService {
 		}
 	}
 
+	/**
+	 * Returns the entity with the given id if it is found
+	 *
+	 * @param id car ID
+	 * @return the entity with the given id
+	 */
 	private Car getCar(Long id) {
 		return carRepository.findById(id).orElseThrow(
 				() -> new CustomException(String.format("Car with ID: %d not found", id),
 						HttpStatus.NOT_FOUND));
 	}
 
+	/**
+	 * Change the state of {@link Car}-entity by chosen and set the entity field
+	 * updatedAt new local date time
+	 *
+	 * @param car    driver-entity
+	 * @param status new state of entity
+	 * @see LocalDateTime
+	 */
 	private void updateStatus(Car car, CarStatus status) {
 		car.setStatus(status);
 		car.setUpdatedAt(LocalDateTime.now());
