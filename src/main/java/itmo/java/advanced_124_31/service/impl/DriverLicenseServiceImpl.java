@@ -10,6 +10,7 @@ import itmo.java.advanced_124_31.model.exceptions.CustomException;
 import itmo.java.advanced_124_31.model.repository.DriverLicenseRepository;
 import itmo.java.advanced_124_31.service.DriverLicenseService;
 import itmo.java.advanced_124_31.service.DriverService;
+import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -84,9 +88,16 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 	}
 
 	@Override
-	public List<DriverLicenseDTO> getLicenses() {
-		return driverLicenseRepository.findAll().stream().map(e -> get(e.getId()))
+	public List<DriverLicenseDTO> getLicenses(Integer page, Integer perPage,
+			String sort, Sort.Direction order) {
+		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
+		//view 1
+		Page<DriverLicense> pageResult = driverLicenseRepository.findAll(pageRequest);
+
+		List<DriverLicenseDTO> content = pageResult.getContent().stream()
+				.map(d -> mapper.convertValue(d, DriverLicenseDTO.class))
 				.collect(Collectors.toList());
+		return content;
 	}
 
 	@Override

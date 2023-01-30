@@ -4,6 +4,7 @@ import itmo.java.advanced_124_31.model.dto.WorkShiftDTO;
 import itmo.java.advanced_124_31.model.entity.WorkShift;
 import itmo.java.advanced_124_31.model.enums.WorkShiftStatus;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 public interface WorkShiftService {
 
@@ -15,7 +16,8 @@ public interface WorkShiftService {
 
 	void delete(Long id);
 
-	List<WorkShiftDTO> getWorkShifts();
+	List<WorkShiftDTO> getWorkShifts(Integer page, Integer perPage, String sort,
+			Sort.Direction order);
 
 	WorkShift getWorkShift(Long id);
 
