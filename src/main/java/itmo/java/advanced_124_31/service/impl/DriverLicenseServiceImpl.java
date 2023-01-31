@@ -12,7 +12,9 @@ import itmo.java.advanced_124_31.service.DriverLicenseService;
 import itmo.java.advanced_124_31.service.DriverService;
 import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -48,6 +50,12 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		String receivedAt = driverLicenseDTO.getReceivedAt();
 		if (receivedAt == null || receivedAt.isEmpty()) {
 			throw new CustomException("Receiving date is missing",
+					HttpStatus.BAD_REQUEST);
+		}
+		try {
+			LocalDate parse = LocalDate.parse(receivedAt);
+		} catch (DateTimeParseException e) {
+			throw new CustomException("Failed to deserialize: " + e.getMessage(),
 					HttpStatus.BAD_REQUEST);
 		}
 

@@ -18,6 +18,7 @@ import itmo.java.advanced_124_31.utils.PaginationUtil;
 import java.beans.PropertyDescriptor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,6 +53,12 @@ public class DriverServiceImpl implements DriverService {
 	@Override
 	public DriverDTORequest create(DriverDTORequest driverDTORequest) {
 		checkPhoneNumber(driverDTORequest.getPhoneNumber());
+		try {
+			LocalDate parse = LocalDate.parse(driverDTORequest.getBirthday());
+		} catch (DateTimeParseException e) {
+			throw new CustomException("Failed to deserialize: " + e.getMessage(),
+					HttpStatus.BAD_REQUEST);
+		}
 
 		//driverDTO --> driver
 		Driver driver = mapper.convertValue(driverDTORequest, Driver.class);
