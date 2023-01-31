@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -139,16 +138,13 @@ public class CarServiceImpl implements CarService {
 		List<CarDTORequest> content = pageResult.getContent().stream()
 				.map(c -> mapper.convertValue(c, CarDTORequest.class))
 				.collect(Collectors.toList());
-		//view 2
-		PagedListHolder<CarDTORequest> result = new PagedListHolder<>(content);
-		result.setPage(page);
-		result.setPageSize(perPage);
 
 		ModelMap map = new ModelMap();
-		map.addAttribute("content", result.getPageList());
+		map.addAttribute("content", content);
 		map.addAttribute("pageNumber", page);
-		map.addAttribute("PageSize", result.getPageSize());
-		map.addAttribute("totalPages", result.getPageCount()); //возвращает единицу
+		map.addAttribute("PageSize", pageResult.getNumberOfElements());
+		map.addAttribute("totalPages",
+				pageResult.getTotalPages()); //возвращает единицу
 
 		return map;
 	}
@@ -271,7 +267,9 @@ public class CarServiceImpl implements CarService {
 		}
 		if (!stateNumber.matches(
 				"^[АВЕКМНОРСТУХ]\\d{3}(?<!000)[АВЕКМНОРСТУХ]{2}\\d{2," + "3}$")) {
-			throw new CustomException("Wrong state number format",
+			throw new CustomException(
+					"Wrong state number format. Expected format [XNNNXXNNN] or " +
+							"[XNNNXXNN] where X - RU-lang chars, N - number ",
 					HttpStatus.BAD_REQUEST);
 		}
 		carRepository.findByStateNumberIgnoreCase(stateNumber).ifPresent(c -> {
