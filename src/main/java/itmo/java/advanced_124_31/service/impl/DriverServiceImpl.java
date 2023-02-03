@@ -1,6 +1,8 @@
 package itmo.java.advanced_124_31.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import itmo.java.advanced_124_31.model.dto.DriverDTORequest;
 import itmo.java.advanced_124_31.model.dto.DriverDTOResponse;
 import itmo.java.advanced_124_31.model.entity.Car;
@@ -41,7 +43,8 @@ public class DriverServiceImpl implements DriverService {
 
 	private final WorkShiftService workShiftService;
 
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = JsonMapper.builder()
+			.addModule(new JavaTimeModule()).build();
 
 	/**
 	 * Returns a {@link DriverDTORequest} object after adding new object Driver
@@ -54,7 +57,7 @@ public class DriverServiceImpl implements DriverService {
 	public DriverDTORequest create(DriverDTORequest driverDTORequest) {
 		checkPhoneNumber(driverDTORequest.getPhoneNumber());
 		try {
-			LocalDate parse = LocalDate.parse(driverDTORequest.getBirthday());
+			LocalDate.parse(driverDTORequest.getBirthday());
 		} catch (DateTimeParseException e) {
 			throw new CustomException("Failed to deserialize: " + e.getMessage(),
 					HttpStatus.BAD_REQUEST);
@@ -65,8 +68,7 @@ public class DriverServiceImpl implements DriverService {
 		driver.setStatus(DriverStatus.CREATED);
 
 		//driver --> driverDTO
-		DriverDTORequest readedDTO = get(driverRepository.save(driver).getId());
-		return readedDTO;
+		return mapper.convertValue(driverRepository.save(driver), DriverDTORequest.class);
 	}
 
 	/**
@@ -234,10 +236,8 @@ public class DriverServiceImpl implements DriverService {
 		workShift.setCar(car);
 		workShift.setDriver(driver);
 		workShiftService.updateStatus(workShift, WorkShiftStatus.UPDATED);
-		DriverDTOResponse driverDTOResponse = mapper.convertValue(
+		return mapper.convertValue(
 				driverRepository.save(driver), DriverDTOResponse.class);
-
-		return driverDTOResponse;
 	}
 
 	/**
@@ -261,9 +261,8 @@ public class DriverServiceImpl implements DriverService {
 		workShift.setDriver(null);
 		workShift.setCar(null);
 		workShiftService.updateStatus(workShift, WorkShiftStatus.UPDATED);
-		DriverDTORequest driverDTORequest = mapper.convertValue(
+		return mapper.convertValue(
 				driverRepository.save(driver), DriverDTORequest.class);
-		return driverDTORequest;
 	}
 
 	/**

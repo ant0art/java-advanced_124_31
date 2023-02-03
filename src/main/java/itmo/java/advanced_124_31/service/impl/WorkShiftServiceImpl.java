@@ -1,6 +1,8 @@
 package itmo.java.advanced_124_31.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import itmo.java.advanced_124_31.model.dto.WorkShiftDTO;
 import itmo.java.advanced_124_31.model.entity.WorkShift;
 import itmo.java.advanced_124_31.model.enums.WorkShiftStatus;
@@ -30,7 +32,8 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 
 	private final WorkShiftRepository workShiftRepository;
 
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = JsonMapper.builder()
+			.addModule(new JavaTimeModule()).build();
 
 	/**
 	 * Returns a {@link WorkShiftDTO} object after adding new object WorkShift
@@ -48,9 +51,8 @@ public class WorkShiftServiceImpl implements WorkShiftService {
 
 		//workShift --> workShiftDTO
 
-		WorkShiftDTO resultDTO = mapper.convertValue(workShiftRepository.save(workShift),
+		return mapper.convertValue(workShiftRepository.save(workShift),
 				WorkShiftDTO.class);
-		return resultDTO;
 	}
 
 	/**
