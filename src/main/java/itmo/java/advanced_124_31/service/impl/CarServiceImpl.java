@@ -1,6 +1,8 @@
 package itmo.java.advanced_124_31.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import itmo.java.advanced_124_31.model.dto.CarDTORequest;
 import itmo.java.advanced_124_31.model.dto.CarDTOResponse;
 import itmo.java.advanced_124_31.model.dto.DriverDTORequest;
@@ -37,7 +39,8 @@ public class CarServiceImpl implements CarService {
 	private final CarRepository carRepository;
 	private final DriverService driverService;
 
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = JsonMapper.builder()
+			.addModule(new JavaTimeModule()).build();
 
 	/**
 	 * Returns a {@link CarDTORequest} object after adding new object Car
@@ -54,8 +57,7 @@ public class CarServiceImpl implements CarService {
 		Car car = mapper.convertValue(carDTORequest, Car.class);
 		car.setStatus(CarStatus.CREATED);
 		//car --> carDTO
-		CarDTORequest readedDTO = get(carRepository.save(car).getId());
-		return readedDTO;
+		return mapper.convertValue(carRepository.save(car), CarDTORequest.class);
 	}
 
 	/**
@@ -131,8 +133,6 @@ public class CarServiceImpl implements CarService {
 		}
 
 		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
-
-		//view 1
 		Page<Car> pageResult = carRepository.findAll(pageRequest);
 
 		List<CarDTORequest> content = pageResult.getContent().stream()
@@ -143,8 +143,7 @@ public class CarServiceImpl implements CarService {
 		map.addAttribute("content", content);
 		map.addAttribute("pageNumber", page);
 		map.addAttribute("PageSize", pageResult.getNumberOfElements());
-		map.addAttribute("totalPages",
-				pageResult.getTotalPages()); //возвращает единицу
+		map.addAttribute("totalPages", pageResult.getTotalPages());
 
 		return map;
 	}
@@ -201,9 +200,8 @@ public class CarServiceImpl implements CarService {
 		//driverRepository.save(driver);
 		car.setDriver(null);
 		updateStatus(car, CarStatus.UPDATED);
-		CarDTORequest request = mapper.convertValue(carRepository.save(car),
+		return mapper.convertValue(carRepository.save(car),
 				CarDTORequest.class);
-		return request;
 	}
 
 	/**
