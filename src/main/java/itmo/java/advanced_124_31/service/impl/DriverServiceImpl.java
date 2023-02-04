@@ -142,7 +142,6 @@ public class DriverServiceImpl implements DriverService {
 	public List<DriverDTORequest> getDrivers(Integer page, Integer perPage, String sort,
 			Sort.Direction order) {
 		Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
-		//view 1
 		Page<Driver> pageResult = driverRepository.findAll(pageRequest);
 
 		List<DriverDTORequest> content = pageResult.getContent().stream()
@@ -236,8 +235,10 @@ public class DriverServiceImpl implements DriverService {
 		workShift.setCar(car);
 		workShift.setDriver(driver);
 		workShiftService.updateStatus(workShift, WorkShiftStatus.UPDATED);
-		return mapper.convertValue(
-				driverRepository.save(driver), DriverDTOResponse.class);
+		DriverDTOResponse response = mapper.convertValue(driverRepository.save(driver),
+				DriverDTOResponse.class);
+		response.setWorkShift(workShift);
+		return response;
 	}
 
 	/**
@@ -261,8 +262,7 @@ public class DriverServiceImpl implements DriverService {
 		workShift.setDriver(null);
 		workShift.setCar(null);
 		workShiftService.updateStatus(workShift, WorkShiftStatus.UPDATED);
-		return mapper.convertValue(
-				driverRepository.save(driver), DriverDTORequest.class);
+		return mapper.convertValue(driverRepository.save(driver), DriverDTORequest.class);
 	}
 
 	/**

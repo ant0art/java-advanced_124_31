@@ -1,5 +1,6 @@
 package itmo.java.advanced_124_31.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import itmo.java.advanced_124_31.model.entity.WorkShift;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DriverDTOResponse extends DriverDTORequest {
-	
+
 	WorkShift workShift;
 }
