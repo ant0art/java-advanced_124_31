@@ -1,6 +1,8 @@
 package itmo.java.advanced_124_31.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import itmo.java.advanced_124_31.model.dto.DriverLicenseDTO;
 import itmo.java.advanced_124_31.model.entity.Driver;
 import itmo.java.advanced_124_31.model.entity.DriverLicense;
@@ -36,7 +38,8 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 	private final DriverLicenseRepository driverLicenseRepository;
 	private final DriverService driverService;
 
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = JsonMapper.builder()
+			.addModule(new JavaTimeModule()).build();
 
 	/**
 	 * Returns a {@link DriverLicenseDTO} object after adding new object DriverLicense
@@ -53,7 +56,7 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 					HttpStatus.BAD_REQUEST);
 		}
 		try {
-			LocalDate parse = LocalDate.parse(receivedAt);
+			LocalDate.parse(receivedAt);
 		} catch (DateTimeParseException e) {
 			throw new CustomException("Failed to deserialize: " + e.getMessage(),
 					HttpStatus.BAD_REQUEST);
@@ -66,9 +69,8 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 
 		//driverLicense --> driverLicenseDTO
 
-		DriverLicenseDTO licenseDTO = mapper.convertValue(
+		return mapper.convertValue(
 				driverLicenseRepository.save(license), DriverLicenseDTO.class);
-		return licenseDTO;
 	}
 
 	/**
@@ -172,9 +174,8 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		driverService.updateStatus(driver, DriverStatus.UPDATED);
 		driver.setLicense(license);
 		updateStatus(license, DriverLicenseStatus.UPDATED);
-		DriverLicenseDTO driverLicenseDTO = mapper.convertValue(
+		return mapper.convertValue(
 				driverLicenseRepository.save(license), DriverLicenseDTO.class);
-		return driverLicenseDTO;
 	}
 
 	/**
@@ -197,9 +198,8 @@ public class DriverLicenseServiceImpl implements DriverLicenseService {
 		updateStatus(license, DriverLicenseStatus.UPDATED);
 		driver.setLicense(null);
 		driverService.updateStatus(driver, DriverStatus.UPDATED);
-		DriverLicenseDTO driverLicenseDTO = mapper.convertValue(
+		return mapper.convertValue(
 				driverLicenseRepository.save(license), DriverLicenseDTO.class);
-		return driverLicenseDTO;
 	}
 
 	/**
