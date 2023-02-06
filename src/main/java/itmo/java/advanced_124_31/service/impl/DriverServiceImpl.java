@@ -291,6 +291,7 @@ public class DriverServiceImpl implements DriverService {
 	 */
 	private WorkShiftGrade getWorkShiftGrade(Driver driver, Car car) {
 
+		WorkShiftGrade workShiftGrade = null;
 		//driver experience
 		int exp = getGradeByDriverExp(driver).getGrade();
 		log.info(String.format("Experience of driver marked as %d", exp));
@@ -304,10 +305,11 @@ public class DriverServiceImpl implements DriverService {
 		Integer min = Collections.min(List.of(exp, rang, age));
 		for (WorkShiftGrade e : WorkShiftGrade.values()) {
 			if (min == e.getGrade()) {
-				return e;
+				workShiftGrade = e;
+				break;
 			}
 		}
-		return null;
+		return workShiftGrade;
 	}
 
 	private WorkShiftGrade getGradeByDriverExp(Driver driver) {
