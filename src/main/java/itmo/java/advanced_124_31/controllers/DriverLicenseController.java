@@ -27,7 +27,6 @@ public class DriverLicenseController {
 
 	private final DriverLicenseService driverLicenseService;
 
-
 	/**
 	 * Set a new driverLicense to database
 	 *

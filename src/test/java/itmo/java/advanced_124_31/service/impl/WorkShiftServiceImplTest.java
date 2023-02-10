@@ -97,8 +97,7 @@ public class WorkShiftServiceImplTest {
 		List<WorkShift> list = Collections.singletonList(workShift);
 		Page<WorkShift> pageResult = mock(Page.class);
 
-		when(workShiftRepository.findAll(any(Pageable.class))).thenReturn(
-				pageResult);
+		when(workShiftRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 		when(pageResult.getContent()).thenReturn(list);
 		List<WorkShiftDTO> result = workShiftService.getWorkShifts(page, perPage, sort,
 				order);

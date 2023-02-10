@@ -37,8 +37,7 @@ public class GlobalException {
 
 	@ExceptionHandler(CustomException.class)
 	public void handleCustomException(HttpServletResponse response, CustomException ex)
-			throws
-			IOException {
+			throws IOException {
 		response.sendError(ex.getStatus().value(), ex.getMessage());
 	}
 
@@ -48,9 +47,8 @@ public class GlobalException {
 		String parameter = ex.getParameterName();
 
 		log.error("{} parameter is missing", parameter);
-		return ResponseEntity.status(404)
-				.body(new ErrorMessage(
-						String.format("parameter is missing: %s", parameter)));
+		return ResponseEntity.status(404).body(new ErrorMessage(
+				String.format("parameter is missing: %s", parameter)));
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -59,9 +57,8 @@ public class GlobalException {
 		String parameter = ex.getParameter().getParameterName();
 
 		log.error("wrong data for parameter: {}", parameter);
-		return ResponseEntity.status(404)
-				.body(new ErrorMessage(
-						String.format("wrong data for parameter: %s", parameter)));
+		return ResponseEntity.status(404).body(new ErrorMessage(
+				String.format("wrong data for parameter: %s", parameter)));
 	}
 
 }

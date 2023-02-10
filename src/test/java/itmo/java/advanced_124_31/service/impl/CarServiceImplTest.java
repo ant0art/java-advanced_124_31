@@ -36,6 +36,7 @@ import org.springframework.ui.ModelMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarServiceImplTest {
+
 	@InjectMocks
 	private CarServiceImpl carService;
 	@Mock
@@ -60,7 +61,8 @@ public class CarServiceImplTest {
 	@Test(expected = CustomException.class)
 	public void create_stateMissing() {
 		CarDTORequest carDTORequest = new CarDTORequest();
-		Mockito.lenient().when(carRepository.save(any(Car.class)))
+		Mockito.lenient()
+				.when(carRepository.save(any(Car.class)))
 				.thenAnswer(i -> i.getArguments()[0]);
 		carService.create(carDTORequest);
 	}
@@ -122,7 +124,8 @@ public class CarServiceImplTest {
 	public void delete() {
 		Car car = new Car();
 		when(carRepository.findById(anyLong())).thenReturn(Optional.of(car));
-		Mockito.lenient().when(carRepository.save(any(Car.class)))
+		Mockito.lenient()
+				.when(carRepository.save(any(Car.class)))
 				.thenAnswer(i -> i.getArguments()[0]);
 		carService.delete(1L);
 		verify(carRepository, times(1)).save(car);
@@ -188,7 +191,8 @@ public class CarServiceImplTest {
 	@Test(expected = CustomException.class)
 	public void addTo_idNotFound() {
 		Car car = new Car();
-		Mockito.lenient().when(carRepository.findById(car.getId()))
+		Mockito.lenient()
+				.when(carRepository.findById(car.getId()))
 				.thenReturn(Optional.of(car));
 		carService.addTo(1L, 1L);
 	}
@@ -204,10 +208,12 @@ public class CarServiceImplTest {
 		car.setDriver(driver);
 
 		//find entities from mock repos
-		lenient().when(carRepository.findById(anyLong())).thenReturn(Optional.of(car));
+		lenient().when(carRepository.findById(anyLong()))
+				.thenReturn(Optional.of(car));
 		lenient().when(driverRepository.findById(anyLong()))
 				.thenReturn(Optional.of(driver));
-		lenient().when(driverService.getDriver(anyLong())).thenReturn(driver);
+		lenient().when(driverService.getDriver(anyLong()))
+				.thenReturn(driver);
 
 		//remove & save
 		driver.getCars().remove(car);

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Drivers")
 public class DriverController {
+
 	private final DriverService driverService;
 
 	/**
@@ -95,8 +96,8 @@ public class DriverController {
 	}
 
 	/**
-	 * Returns a list of all objects drivers in a limited size list sorted by chosen
-	 * parameter
+	 * Returns a list of all objects drivers in a limited size list sorted by
+	 * chosen parameter
 	 *
 	 * @param page    serial number of page to show
 	 * @param perPage elements on page

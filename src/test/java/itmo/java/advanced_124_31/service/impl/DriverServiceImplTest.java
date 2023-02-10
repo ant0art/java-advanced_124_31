@@ -188,9 +188,12 @@ public class DriverServiceImplTest {
 		driver.setCars(cars);
 
 		when(workShiftService.getWorkShift(anyLong())).thenReturn(workShift);
-		Mockito.lenient().when(driverRepository.findById(anyLong()))
+		Mockito.lenient()
+				.when(driverRepository.findById(anyLong()))
 				.thenReturn(Optional.of(driver));
-		Mockito.lenient().when(mock(Driver.class).getCars()).thenReturn(cars);
+		Mockito.lenient()
+				.when(mock(Driver.class).getCars())
+				.thenReturn(cars);
 
 		driver.getWorkShifts().add(workShift);
 
@@ -224,7 +227,9 @@ public class DriverServiceImplTest {
 
 		when(workShiftService.getWorkShift(anyLong())).thenReturn(workShift);
 		when(driverRepository.findById(anyLong())).thenReturn(Optional.of(driver));
-		Mockito.lenient().when(mock(Driver.class).getCars()).thenReturn(driver.getCars());
+		Mockito.lenient()
+				.when(mock(Driver.class).getCars())
+				.thenReturn(driver.getCars());
 
 		driverService.addToWorkShift(1L, 1L, 1L);
 	}
@@ -238,9 +243,11 @@ public class DriverServiceImplTest {
 		list.add(workShift);
 		driver.setWorkShifts(list);
 
-		Mockito.lenient().when(workShiftService.getWorkShift(anyLong()))
+		Mockito.lenient()
+				.when(workShiftService.getWorkShift(anyLong()))
 				.thenReturn(workShift);
-		Mockito.lenient().when(driverRepository.findById(anyLong()))
+		Mockito.lenient()
+				.when(driverRepository.findById(anyLong()))
 				.thenReturn(Optional.of(driver));
 
 		when(driverRepository.save(driver)).thenReturn(driver);
@@ -253,9 +260,11 @@ public class DriverServiceImplTest {
 		WorkShift workShift = new WorkShift();
 		Driver driver = new Driver();
 
-		Mockito.lenient().when(workShiftService.getWorkShift(anyLong()))
+		Mockito.lenient()
+				.when(workShiftService.getWorkShift(anyLong()))
 				.thenReturn(workShift);
-		Mockito.lenient().when(driverRepository.findById(anyLong()))
+		Mockito.lenient()
+				.when(driverRepository.findById(anyLong()))
 				.thenReturn(Optional.of(driver));
 
 		driverService.removeDriverFromWorkShift(1L);

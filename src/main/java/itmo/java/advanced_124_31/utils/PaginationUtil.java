@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public class PaginationUtil {
+
 	public static Pageable getPageRequest(Integer page, Integer perPage, String sort,
 			Sort.Direction order) {
 		if (page == null) {

@@ -27,7 +27,6 @@ public class WorkShiftController {
 
 	private final WorkShiftService workShiftService;
 
-
 	/**
 	 * Set a new workShift to database
 	 *
@@ -79,8 +78,8 @@ public class WorkShiftController {
 	}
 
 	/**
-	 * Returns a list of all objects drivers in a limited size list sorted by chosen
-	 * parameter
+	 * Returns a list of all objects drivers in a limited size list sorted by
+	 * chosen parameter
 	 *
 	 * @param page    serial number of page to show
 	 * @param perPage elements on page
