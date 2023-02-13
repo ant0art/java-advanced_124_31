@@ -16,6 +16,7 @@
 	<description>Project for Advanced course of ITMO</description>
 	<properties>
 		<java.version>11</java.version>
+		<project-root-package>itmo.java.advanced_124_31</project-root-package>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -64,6 +65,21 @@
 			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>5.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<version>2.0.14.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth.boot</groupId>
+			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
+			<version>2.1.3.RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -71,17 +87,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${project.parent.version}</version>
 				<configuration>
 					<excludes>
 						<exclude>
-							<groupId>org.project-lombok</groupId>
+							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>app</finalName>
 	</build>
-
 </project>

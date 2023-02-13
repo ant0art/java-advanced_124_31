@@ -1,4 +1,4 @@
-package itmo.java.advanced_124_31.controllers;
+package itmo.java.advanced_124_31.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
