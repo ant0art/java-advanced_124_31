@@ -95,7 +95,7 @@ public class WorkShiftServiceImplTest {
 		WorkShift workShift = new WorkShift();
 		workShift.setGrade(WorkShiftGrade.COMFORT);
 		List<WorkShift> list = Collections.singletonList(workShift);
-		Page<WorkShift> pageResult = mock(Page.class);
+		@SuppressWarnings("unchecked") Page<WorkShift> pageResult = mock(Page.class);
 
 		when(workShiftRepository.findAll(any(Pageable.class))).thenReturn(
 				pageResult);

@@ -136,7 +136,7 @@ public class DriverLicenseServiceImplTest {
 
 		List<DriverLicense> content = Collections.singletonList(license);
 
-		Page<DriverLicense> pageResult = mock(Page.class);
+		@SuppressWarnings("unchecked") Page<DriverLicense> pageResult = mock(Page.class);
 
 		when(driverLicenseRepository.findAll(any(PageRequest.class))).thenReturn(
 				pageResult);
@@ -181,7 +181,9 @@ public class DriverLicenseServiceImplTest {
 		license.setDriver(driver);
 		when(driverLicenseRepository.findById(anyString())).thenReturn(
 				Optional.of(license));
-		Mockito.lenient().when(driverService.getDriver(anyLong())).thenReturn(driver);
+		Mockito.lenient()
+				.when(driverService.getDriver(anyLong()))
+				.thenReturn(driver);
 		when(driverLicenseRepository.save(any(DriverLicense.class))).thenAnswer(
 				i -> i.getArguments()[0]);
 		DriverLicenseDTO result = driverLicenseService.removeDriverLicenseFromDriver(
@@ -195,7 +197,9 @@ public class DriverLicenseServiceImplTest {
 		Driver driver = new Driver();
 		when(driverLicenseRepository.findById(anyString())).thenReturn(
 				Optional.of(license));
-		Mockito.lenient().when(driverService.getDriver(anyLong())).thenReturn(driver);
+		Mockito.lenient()
+				.when(driverService.getDriver(anyLong()))
+				.thenReturn(driver);
 		driverLicenseService.removeDriverLicenseFromDriver("smth");
 	}
 
