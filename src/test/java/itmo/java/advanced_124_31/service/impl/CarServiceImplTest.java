@@ -144,14 +144,15 @@ public class CarServiceImplTest {
 		//add to Collection
 		List<Car> cars = Collections.singletonList(car);
 		//add mocked Page
-		Page<Car> pageResult = mock(Page.class);
+		@SuppressWarnings("unchecked") Page<Car> pageResult = mock(Page.class);
 
 		when(carRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 		when(pageResult.getContent()).thenReturn(cars);
 		//call serviceImpl method
 		ModelMap result = carService.getCars(page, perPage, sort, order);
-		List<CarDTORequest> carDTORequests = (List<CarDTORequest>) (result.get(
-				"content"));
+		@SuppressWarnings("unchecked") List<CarDTORequest> carDTORequests =
+				(List<CarDTORequest>) (result.get(
+						"content"));
 		assertEquals(car.getName(), carDTORequests.get(0).getName());
 	}
 

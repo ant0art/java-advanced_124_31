@@ -135,7 +135,7 @@ public class DriverServiceImplTest {
 		Driver driver = new Driver();
 		driver.setName("Alex");
 		List<Driver> drivers = Collections.singletonList(driver);
-		Page<Driver> pageResult = mock(Page.class);
+		@SuppressWarnings("unchecked") Page<Driver> pageResult = mock(Page.class);
 
 		when(driverRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 		when(pageResult.getContent()).thenReturn(drivers);
