@@ -41,7 +41,7 @@ public class DriverLicense implements Serializable {
 	@Column(nullable = false)
 	List<DriverLicenseCategory> categories;
 
-	@Column(name = "received_at")
+	@Column(name = "received_at", nullable = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	LocalDate receivedAt;
 

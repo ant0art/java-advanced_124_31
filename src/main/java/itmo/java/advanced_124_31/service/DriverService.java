@@ -5,6 +5,7 @@ import itmo.java.advanced_124_31.model.dto.DriverDTOResponse;
 import itmo.java.advanced_124_31.model.entity.Driver;
 import itmo.java.advanced_124_31.model.enums.DriverStatus;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 public interface DriverService {
 
@@ -16,7 +17,8 @@ public interface DriverService {
 
 	void delete(Long id);
 
-	List<DriverDTORequest> getDrivers();
+	List<DriverDTORequest> getDrivers(Integer page, Integer perPage, String sort,
+			Sort.Direction order);
 
 	Driver getDriver(Long id);
 
